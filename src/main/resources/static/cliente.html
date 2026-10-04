@@ -8,7 +8,7 @@
 <body class="bg-light">
 <nav class="navbar navbar-dark bg-primary">
     <div class="container">
-        <span class="navbar-brand">Panel de Cliente</span>
+        <span class="navbar-brand" id="panelTitulo">Panel</span>
         <button class="btn btn-danger btn-sm" onclick="logout()">Cerrar Sesión</button>
     </div>
 </nav>
@@ -22,10 +22,24 @@
 
 <script src="js/api.js"></script>
 <script>
-    if (!localStorage.getItem('token') || localStorage.getItem('rol') !== 'CLIENTE') {
+    const rol = localStorage.getItem('rol');
+    if (!localStorage.getItem('token') || rol === 'ADMIN') {
         window.location.href = 'index.html';
     }
-    document.getElementById('bienvenida').innerText = 'Bienvenido, ' + localStorage.getItem('nombre');
+    
+    const bienvenidaTexto = {
+        'CLIENTE': 'Bienvenido, ',
+        'VETERINARIO': 'Bienvenido, Veterinario/a ',
+        'RECEPCIONISTA': 'Bienvenido, Recepcionista '
+    };
+    const tituloPanel = {
+        'CLIENTE': 'Panel de Cliente',
+        'VETERINARIO': 'Panel de Veterinario',
+        'RECEPCIONISTA': 'Panel de Recepcionista'
+    };
+    document.getElementById('panelTitulo').innerText = tituloPanel[rol] || 'Panel';
+    document.getElementById('bienvenida').innerText = 
+        (bienvenidaTexto[rol] || 'Bienvenido, ') + localStorage.getItem('nombre');
 </script>
 </body>
 </html>

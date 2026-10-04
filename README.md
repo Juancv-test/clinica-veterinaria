@@ -21,7 +21,7 @@ Antes de ejecutar, abre una terminal PowerShell en la raíz del proyecto y confi
 $env:DB_PASSWORD = "admin123"
 
 # 2. Secreto para firmar los tokens JWT (Mínimo 32 caracteres)
-$env:JWT_SECRET = "VeterinariaJwtSecretKey2026-AeD-ProyectoUni-XyZ"
+$env:JWT_SECRET = "k9#Xp2$vL8zQw1Yn5Fm4Jv7Bx0Rt3W_z"
 
 # 3. Contraseña inicial para el superadministrador
 $env:ADMIN_PASSWORD = "AdminVet2026!"
