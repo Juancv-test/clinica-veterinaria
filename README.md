@@ -29,7 +29,8 @@ $env:ADMIN_PASSWORD = "AdminVet2026!"
 # 4. Iniciar la aplicación
 .\mvnw.cmd spring-boot:run
 
-Atajo copia y pega este comando para iniciar el proyecto:
+# 4. Atajo 
+copia y pega este comando para iniciar el proyecto:
 $env:DB_PASSWORD="admin123"; $env:JWT_SECRET='k9#Xp2$vL8zQw1Yn5Fm4Jv7Bx0Rt3W_z'; $env:ADMIN_PASSWORD="AdminVet2026!"; .\mvnw.cmd spring-boot:run
 ```
 
