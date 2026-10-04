@@ -1,0 +1,5 @@
+$kind: collection
+description: Pruebas de la porción 30% del sistema
+variables:
+  baseUrl: http://localhost:8080
+  token: ""

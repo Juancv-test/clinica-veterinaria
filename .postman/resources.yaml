@@ -1,0 +1,9 @@
+workspace:
+  id: ""
+
+# Each entry here maps a local resource to one or more corresponding objects in Postman Cloud
+
+cloudResources:
+  collections:
+    ../postman/collections/Veterinaria API - Avance 1 Copy: 6dfea3b0-4c13-4c48-9c6f-cf7e14273e6f
+    ../postman/collections/Veterinaria API - Avance 1: ea0cf5e7-0ec4-401f-a107-298c7cfbf83d

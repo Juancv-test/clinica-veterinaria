@@ -1,0 +1,23 @@
+$kind: http-request
+url: "{{baseUrl}}/api/auth/registro"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+        "cliente": {
+            "nombres": "Juan",
+            "apellidos": "Perez",
+            "dni": "87654321",
+            "email": "juan@test.com",
+            "password": "123456"
+        },
+        "mascota": {
+            "nombre": "Bobby",
+            "especie": "Perro",
+            "sexo": "M"
+        }
+    }
+order: 1000

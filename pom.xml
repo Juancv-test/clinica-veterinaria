@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>4.1.1</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+
+	<groupId>com.veterinaria</groupId>
+	<artifactId>clinica</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>clinica</name>
+	<description>Sistema de gestión para clínica veterinaria - Proyecto universitario AED</description>
+
+	<properties>
+		<java.version>25</java.version>
+		<!-- Versión única de JJWT para evitar conflictos -->
+		<jjwt.version>0.12.6</jjwt.version>
+	</properties>
+
+	<dependencies>
+
+		<!-- ========== DEPENDENCIAS PRINCIPALES ========== -->
+
+		<!-- Spring Web MVC: controladores REST, manejo de peticiones HTTP -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-webmvc</artifactId>
+		</dependency>
+
+		<!-- Spring JDBC: acceso a base de datos con JdbcTemplate (sin JPA/Hibernate) -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-jdbc</artifactId>
+		</dependency>
+
+		<!-- Spring Security: autenticación y autorización -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+
+		<!-- Bean Validation: anotaciones @NotBlank, @Email, @Size, etc. en los DTOs -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
+		</dependency>
+
+		<!-- Driver PostgreSQL (solo en runtime, no se necesita en compilación) -->
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+
+		<!-- ========== JWT (JJWT 0.12.x con Gson para evitar conflicto con Jackson 3) ========== -->
+
+		<!-- API pública de JJWT: interfaces y clases que usamos en el código -->
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-api</artifactId>
+			<version>${jjwt.version}</version>
+		</dependency>
+
+		<!-- Implementación interna de JJWT (solo en runtime) -->
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-impl</artifactId>
+			<version>${jjwt.version}</version>
+			<scope>runtime</scope>
+		</dependency>
+
+		<!--
+			Serialización JSON de JJWT con Gson.
+			Se usa Gson en lugar de jjwt-jackson porque Spring Boot 4
+			usa Jackson 3 (tools.jackson.*) y JJWT 0.12.x depende de
+			Jackson 2 (com.fasterxml.jackson.*), lo que causaría conflicto.
+		-->
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-gson</artifactId>
+			<version>${jjwt.version}</version>
+			<scope>runtime</scope>
+		</dependency>
+
+		<!-- ========== DEPENDENCIAS DE PRUEBAS ========== -->
+
+		<!-- Suite completa de pruebas: JUnit 5, Mockito, AssertJ -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- Utilidades de prueba para Spring Security (con @WithMockUser, etc.) -->
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+	</dependencies>
+
+	<build>
+		<plugins>
+			<!-- Plugin de Spring Boot: genera el JAR ejecutable -->
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

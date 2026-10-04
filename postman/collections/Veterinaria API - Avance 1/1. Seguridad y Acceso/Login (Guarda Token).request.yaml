@@ -1,0 +1,21 @@
+$kind: http-request
+url: "{{baseUrl}}/api/auth/login"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+        "email": "admin@veterinaria.com",
+        "password": "AdminVet2026!"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      var data = pm.response.json();
+      if (data.token) {
+          pm.collectionVariables.set("token", data.token);
+      }
+    language: text/javascript
+order: 1000

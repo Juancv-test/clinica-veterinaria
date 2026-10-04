@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Veterinaria - Cliente</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+<nav class="navbar navbar-dark bg-primary">
+    <div class="container">
+        <span class="navbar-brand">Panel de Cliente</span>
+        <button class="btn btn-danger btn-sm" onclick="logout()">Cerrar Sesión</button>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="alert alert-success">
+        <h4 id="bienvenida">Bienvenido</h4>
+        <p>Tu registro fue exitoso. (Las funciones detalladas del cliente se implementarán en el siguiente avance).</p>
+    </div>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+    if (!localStorage.getItem('token') || localStorage.getItem('rol') !== 'CLIENTE') {
+        window.location.href = 'index.html';
+    }
+    document.getElementById('bienvenida').innerText = 'Bienvenido, ' + localStorage.getItem('nombre');
+</script>
+</body>
+</html>

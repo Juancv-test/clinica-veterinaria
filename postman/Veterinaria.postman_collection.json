@@ -1,0 +1,97 @@
+{
+  "info": {
+    "name": "Veterinaria API - Avance 1",
+    "description": "Pruebas de la porción 30% del sistema",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Seguridad y Acceso",
+      "item": [
+        {
+          "name": "Login (Guarda Token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var data = pm.response.json();",
+                  "if (data.token) {",
+                  "    pm.collectionVariables.set(\"token\", data.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type","value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"admin@veterinaria.com\",\n    \"password\": \"AdminVet2026!\"\n}"
+            },
+            "url": {"raw": "{{baseUrl}}/api/auth/login","host": ["{{baseUrl}}"],"path": ["api","auth","login"]}
+          }
+        },
+        {
+          "name": "Fallo Login (400)",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type","value": "application/json"}],
+            "body": {"mode": "raw","raw": "{}"},
+            "url": {"raw": "{{baseUrl}}/api/auth/login","host": ["{{baseUrl}}"],"path": ["api","auth","login"]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Usuarios y Clientes",
+      "item": [
+        {
+          "name": "Registro Público Cliente + Mascota",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type","value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"cliente\": {\n        \"nombres\": \"Juan\",\n        \"apellidos\": \"Perez\",\n        \"dni\": \"87654321\",\n        \"email\": \"juan@test.com\",\n        \"password\": \"123456\"\n    },\n    \"mascota\": {\n        \"nombre\": \"Bobby\",\n        \"especie\": \"Perro\",\n        \"sexo\": \"M\"\n    }\n}"
+            },
+            "url": {"raw": "{{baseUrl}}/api/auth/registro","host": ["{{baseUrl}}"],"path": ["api","auth","registro"]}
+          }
+        },
+        {
+          "name": "Listar Usuarios (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization","value": "Bearer {{token}}"}],
+            "url": {"raw": "{{baseUrl}}/api/usuarios","host": ["{{baseUrl}}"],"path": ["api","usuarios"]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Citas",
+      "item": [
+        {
+          "name": "Ver Cola Pendientes",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization","value": "Bearer {{token}}"}],
+            "url": {"raw": "{{baseUrl}}/api/citas/pendientes","host": ["{{baseUrl}}"],"path": ["api","citas","pendientes"]}
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "token",
+      "value": ""
+    }
+  ]
+}

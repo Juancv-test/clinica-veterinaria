@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Veterinaria - Administración</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<nav class="navbar navbar-dark bg-dark">
+    <div class="container-fluid">
+        <span class="navbar-brand">Panel de Administrador</span>
+        <button class="btn btn-outline-light btn-sm" onclick="logout()">Cerrar Sesión</button>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+        <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#usuarios">Usuarios</a></li>
+        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#citas">Citas en Cola</a></li>
+        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#servicios">Servicios</a></li>
+    </ul>
+
+    <div class="tab-content mt-3">
+        <!-- Pestaña Usuarios -->
+        <div class="tab-pane fade show active" id="usuarios">
+            <button class="btn btn-success mb-2" onclick="cargarUsuarios()">Refrescar Lista</button>
+            <button class="btn btn-primary mb-2 ms-2" onclick="abrirModalCrear()">+ Nuevo Usuario</button>
+            <table class="table table-bordered mt-2">
+                <thead class="table-light">
+                    <tr><th>ID</th><th>Nombres</th><th>DNI</th><th>Email</th><th>Rol</th><th>Acciones</th></tr>
+                </thead>
+                <tbody id="tablaUsuarios"></tbody>
+            </table>
+        </div>
+
+        <!-- Pestaña Citas -->
+        <div class="tab-pane fade" id="citas">
+            <button class="btn btn-success mb-2" onclick="cargarColaCitas()">Refrescar Cola</button>
+            <table class="table table-bordered">
+                <thead class="table-light">
+                    <tr><th>Fecha</th><th>Hora</th><th>Mascota</th><th>Servicio</th><th>Estado</th></tr>
+                </thead>
+                <tbody id="tablaCitas"></tbody>
+            </table>
+        </div>
+
+        <!-- Pestaña Servicios -->
+        <div class="tab-pane fade" id="servicios">
+            <button class="btn btn-success mb-2" onclick="cargarServicios()">Refrescar Servicios</button>
+            <table class="table table-bordered">
+                <thead class="table-light">
+                    <tr><th>ID</th><th>Nombre</th><th>Precio</th></tr>
+                </thead>
+                <tbody id="tablaServicios"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Crear/Editar Usuario -->
+<div class="modal fade" id="usuarioModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalTitle">Usuario</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="usuarioForm">
+            <input type="hidden" id="u_id">
+            <div class="row mb-2">
+                <div class="col"><input type="text" id="u_nombres" class="form-control" placeholder="Nombres" required></div>
+                <div class="col"><input type="text" id="u_apellidos" class="form-control" placeholder="Apellidos" required></div>
+            </div>
+            <div class="mb-2"><input type="text" id="u_dni" class="form-control" placeholder="DNI (8 dígitos)" required></div>
+            <div class="mb-2"><input type="email" id="u_email" class="form-control" placeholder="Correo electrónico" required></div>
+            <div class="mb-2">
+                <input type="text" id="u_telefono" class="form-control" placeholder="Teléfono">
+            </div>
+            <div class="mb-2">
+                <input type="text" id="u_direccion" class="form-control" placeholder="Dirección">
+            </div>
+            <div class="mb-2">
+                <input type="password" id="u_password" class="form-control" placeholder="Contraseña" required>
+                <small class="text-muted" id="pwdHelp">Obligatoria al crear o editar.</small>
+            </div>
+            <div class="mb-3">
+                <label>Rol del Sistema:</label>
+                <select id="u_rol" class="form-select" required>
+                    <option value="1">ADMIN</option>
+                    <option value="2">CLIENTE</option>
+                    <option value="3">RECEPCIONISTA</option>
+                    <option value="4">VETERINARIO</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Guardar Usuario</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/api.js"></script>
+<script>
+    if (!localStorage.getItem('token') || localStorage.getItem('rol') !== 'ADMIN') {
+        window.location.href = 'index.html';
+    }
+
+    let modal;
+    document.addEventListener("DOMContentLoaded", function() {
+        modal = new bootstrap.Modal(document.getElementById('usuarioModal'));
+    });
+
+    // Variable global para guardar la data cruda y facilitar la edición
+    let listaUsuarios = [];
+
+    async function cargarUsuarios() {
+        listaUsuarios = await api.get('/usuarios');
+        let html = '';
+        listaUsuarios.forEach(u => {
+            html += `<tr>
+                <td>${u.idUsuario}</td>
+                <td>${u.nombres} ${u.apellidos}</td>
+                <td>${u.dni}</td>
+                <td>${u.email}</td>
+                <td><span class="badge bg-secondary">${u.rol}</span></td>
+                <td>
+                    <button class="btn btn-warning btn-sm" onclick="abrirModalEditar(${u.idUsuario})">Editar</button>
+                    <button class="btn btn-danger btn-sm" onclick="borrarUsuario(${u.idUsuario})">Eliminar</button>
+                </td>
+            </tr>`;
+        });
+        document.getElementById('tablaUsuarios').innerHTML = html;
+    }
+
+    function abrirModalCrear() {
+        document.getElementById('usuarioForm').reset();
+        document.getElementById('u_id').value = '';
+        document.getElementById('modalTitle').innerText = 'Nuevo Usuario';
+        modal.show();
+    }
+
+    function abrirModalEditar(id) {
+        const user = listaUsuarios.find(u => u.idUsuario === id);
+        if(!user) return;
+        
+        document.getElementById('u_id').value = user.idUsuario;
+        document.getElementById('u_nombres').value = user.nombres;
+        document.getElementById('u_apellidos').value = user.apellidos;
+        document.getElementById('u_dni').value = user.dni;
+        document.getElementById('u_email').value = user.email;
+        document.getElementById('u_telefono').value = user.telefono || '';
+        document.getElementById('u_direccion').value = user.direccion || '';
+        document.getElementById('u_password').value = ''; 
+        
+        // Mapeo básico de roles a ID
+        const rolesMap = { 'ADMIN': 1, 'CLIENTE': 2, 'RECEPCIONISTA': 3, 'VETERINARIO': 4 };
+        document.getElementById('u_rol').value = rolesMap[user.rol];
+        
+        document.getElementById('modalTitle').innerText = 'Editar Usuario';
+        modal.show();
+    }
+
+    document.getElementById('usuarioForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('u_id').value;
+        const payload = {
+            nombres: document.getElementById('u_nombres').value,
+            apellidos: document.getElementById('u_apellidos').value,
+            dni: document.getElementById('u_dni').value,
+            email: document.getElementById('u_email').value,
+            telefono: document.getElementById('u_telefono').value,
+            direccion: document.getElementById('u_direccion').value,
+            password: document.getElementById('u_password').value,
+            idRol: parseInt(document.getElementById('u_rol').value)
+        };
+
+        try {
+            if (id) {
+                await api.put('/usuarios/' + id, payload); // Actualizar
+            } else {
+                await api.post('/usuarios', payload); // Crear
+            }
+            modal.hide();
+            cargarUsuarios();
+        } catch(err) {
+            // Error manejado en api.js
+        }
+    });
+
+    async function borrarUsuario(id) {
+        if(confirm('¿Seguro que deseas eliminar este usuario?')) {
+            await api.delete('/usuarios/' + id);
+            cargarUsuarios();
+        }
+    }
+
+    async function cargarColaCitas() {
+        const citas = await api.get('/citas/pendientes');
+        let html = '';
+        citas.forEach(c => {
+            html += `<tr><td>${c.fecha}</td><td>${c.hora}</td><td>${c.nombreMascota}</td><td>${c.nombreServicio}</td><td><span class="badge bg-primary">${c.estado}</span></td></tr>`;
+        });
+        document.getElementById('tablaCitas').innerHTML = html;
+    }
+
+    async function cargarServicios() {
+        const servicios = await api.get('/servicios');
+        let html = '';
+        servicios.forEach(s => {
+            html += `<tr><td>${s.idServicio}</td><td>${s.nombre}</td><td>S/ ${s.precio}</td></tr>`;
+        });
+        document.getElementById('tablaServicios').innerHTML = html;
+    }
+
+    cargarUsuarios();
+</script>
+</body>
+</html>
