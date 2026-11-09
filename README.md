@@ -1,4 +1,4 @@
-# Proyecto Veterinaria Huesitos - Avance 2 (Sistema Integral)
+# Proyecto Veterinaria Huesitos - Avance 2 (Sistema Web)
 
 Sistema web para gestión de una clínica veterinaria, desarrollado con Java 25, Spring Boot 4.1.1 y PostgreSQL 18. Este avance implementa el 100 % de las 16 funcionalidades del sistema (4 actores x 4 funcionalidades):
 - **Cliente:** Registro de tutor y mascotas (edad en años y peso), solicitud de citas con validación de horarios, catálogo de servicios, atención al cliente y gestión de perfil.
