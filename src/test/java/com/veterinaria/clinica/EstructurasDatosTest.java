@@ -74,6 +74,26 @@ class EstructurasDatosTest {
                 });
     }
 
+
+    /**
+     * Utiliza la cuenta del veterinario para los testeos
+     * o la crea automaticamente si no existe en la base de datos.
+     */
+    private Usuario obtenerVeterinarioTest() {
+        return usuarioDao.findByEmail("veterinario@veterinaria.com")
+                .orElseGet(() -> {
+                    Integer idRolVet = jdbc.queryForObject(
+                            "SELECT id_rol FROM roles WHERE nombre = 'VETERINARIO'", Integer.class);
+                    Usuario nuevo = new Usuario(
+                            null, "Luis", "Vasquez", "72819203", "987654321", "Av. Medica 456",
+                            "veterinario@veterinaria.com", passwordEncoder.encode("123456"),
+                            idRolVet, "VETERINARIO", true, null
+                    );
+                    Long id = usuarioDao.save(nuevo);
+                    return usuarioDao.findById(id).orElseThrow();
+                });
+    }
+
     @Test
     void testHashMapServiciosCargadoEnO1() {
         List<Servicio> activos = servicioService.listarActivos();
@@ -244,7 +264,7 @@ class EstructurasDatosTest {
     @Test
     void testConflictoHorarioYAsignacionRapida() {
         Usuario cliente = obtenerClienteTest();
-        Usuario vet = usuarioDao.findByEmail("veterinario@veterinaria.com").orElseThrow();
+        Usuario vet = obtenerVeterinarioTest();
 
         Long idMascota1 = mascotaDao.save(new Mascota(null, "PetTest1", "Perro", "Mestizo", "M", LocalDate.now().minusYears(1), new BigDecimal("6"), cliente.idUsuario(), null, true));
         Long idMascota2 = mascotaDao.save(new Mascota(null, "PetTest2", "Gato", "Siames", "H", LocalDate.now().minusYears(1), new BigDecimal("3"), cliente.idUsuario(), null, true));

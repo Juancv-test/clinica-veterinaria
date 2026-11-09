@@ -5,7 +5,6 @@ import com.veterinaria.clinica.dto.CambioRolDto;
 import com.veterinaria.clinica.dto.RegistroClienteDto;
 import com.veterinaria.clinica.dto.UsuarioDto;
 import com.veterinaria.clinica.dto.UsuarioResponseDto;
-import com.veterinaria.clinica.exception.ResourceNotFoundException;
 import com.veterinaria.clinica.model.Usuario;
 import com.veterinaria.clinica.service.UsuarioService;
 import jakarta.validation.Valid;
