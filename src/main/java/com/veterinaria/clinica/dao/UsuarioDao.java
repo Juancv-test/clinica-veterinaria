@@ -34,6 +34,9 @@ public interface UsuarioDao {
     /** Cambia el rol de un usuario */
     void updateRol(Long id, Integer idRol);
 
+    /** Actualiza la contraseña hasheada del usuario */
+    void updatePassword(Long id, String passwordHash);
+
     /** Baja lógica: marca activo = false */
     void deactivate(Long id);
 

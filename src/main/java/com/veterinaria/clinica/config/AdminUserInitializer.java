@@ -9,16 +9,6 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
-/**
- * Crea el usuario administrador al iniciar la aplicación,
- * SOLO si aún no existe en la base de datos.
- *
- * CommandLineRunner: Spring lo ejecuta automáticamente después de que
- * el contexto de la aplicación está completamente levantado.
- *
- * La contraseña se lee de la variable de entorno ADMIN_PASSWORD
- * y se hashea con BCrypt antes de guardarla. Nunca se almacena en texto plano.
- */
 @Component
 public class AdminUserInitializer implements CommandLineRunner {
 
@@ -26,7 +16,6 @@ public class AdminUserInitializer implements CommandLineRunner {
     private final RolDao rolDao;
     private final BCryptPasswordEncoder passwordEncoder;
 
-    /** Contraseña del admin leída de la variable de entorno ADMIN_PASSWORD */
     @Value("${admin.password}")
     private String adminPassword;
 
@@ -43,35 +32,26 @@ public class AdminUserInitializer implements CommandLineRunner {
         String adminEmail = "admin@veterinaria.com";
 
         if (!usuarioDao.existsByEmail(adminEmail)) {
-            // Obtener el ID del rol ADMIN (ya insertado por data.sql)
             Rol rolAdmin = rolDao.findByNombre("ADMIN")
-                    .orElseThrow(() -> new RuntimeException(
-                            "Rol ADMIN no encontrado. Verifica que data.sql se ejecutó correctamente."));
+                    .orElseThrow(() -> new RuntimeException("Rol ADMIN no encontrado en base de datos."));
 
-            // Hashear la contraseña antes de guardarla (BCrypt genera un hash diferente
-            // en cada llamada, incluso con la misma contraseña — eso es normal y seguro)
             String hash = passwordEncoder.encode(adminPassword);
-
             Usuario admin = new Usuario(
-                    null,               // id_usuario: lo genera la secuencia BIGSERIAL
+                    null,
                     "Administrador",
                     "del Sistema",
-                    "00000000",         // DNI ficticio único para el admin
-                    null,               // telefono: opcional
-                    null,               // direccion: opcional
+                    "00000000",
+                    null,
+                    null,
                     adminEmail,
-                    hash,               // password_hash: BCrypt
+                    hash,
                     rolAdmin.idRol(),
-                    null,               // nombreRol: solo se usa en consultas con JOIN
-                    true,               // activo
-                    null                // fecha_registro: la asigna la BD con DEFAULT NOW()
+                    null,
+                    true,
+                    null
             );
 
             usuarioDao.save(admin);
-            System.out.println("✅ [AdminUserInitializer] Usuario admin creado: " + adminEmail);
-
-        } else {
-            System.out.println("ℹ️  [AdminUserInitializer] Admin ya existe: " + adminEmail);
         }
     }
 }

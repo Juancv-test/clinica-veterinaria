@@ -44,10 +44,14 @@ CREATE TABLE IF NOT EXISTS mascotas (
     sexo             CHAR(1)      CHECK (sexo IN ('M', 'H')),
     fecha_nacimiento DATE,
     peso_kg          NUMERIC(5,2),
-    id_cliente       BIGINT       NOT NULL
+    id_cliente       BIGINT
                          REFERENCES usuarios(id_usuario),
-    activo           BOOLEAN      DEFAULT TRUE       -- baja lógica
+    activo           BOOLEAN      DEFAULT TRUE,       -- baja lógica
+    es_temporal      BOOLEAN      DEFAULT FALSE       -- para atencion de emergencia antes del registro
 );
+
+ALTER TABLE mascotas ALTER COLUMN id_cliente DROP NOT NULL;
+ALTER TABLE mascotas ADD COLUMN IF NOT EXISTS es_temporal BOOLEAN DEFAULT FALSE;
 
 -- ------------------------------------------------------------
 -- 4. SERVICIOS  (catálogo de servicios veterinarios)
@@ -78,5 +82,48 @@ CREATE TABLE IF NOT EXISTS citas (
     hora           TIME        NOT NULL,
     estado         VARCHAR(15) DEFAULT 'PROGRAMADA'
                        CHECK (estado IN ('PROGRAMADA', 'CANCELADA', 'ATENDIDA')),
-    motivo         VARCHAR(200)
+    motivo         VARCHAR(200),
+    es_emergencia  BOOLEAN     DEFAULT FALSE,
+    contacto_emergencia VARCHAR(150)
 );
+
+ALTER TABLE citas ADD COLUMN IF NOT EXISTS es_emergencia BOOLEAN DEFAULT FALSE;
+ALTER TABLE citas ADD COLUMN IF NOT EXISTS contacto_emergencia VARCHAR(150);
+
+-- ------------------------------------------------------------
+-- 6. ATENCIONES  (registro de atención médica e historial clínico)
+-- ------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS atenciones (
+    id_atencion     BIGSERIAL    PRIMARY KEY,
+    id_cita         BIGINT       REFERENCES citas(id_cita),
+    id_mascota      BIGINT       NOT NULL
+                        REFERENCES mascotas(id_mascota),
+    id_veterinario  BIGINT       NOT NULL
+                        REFERENCES usuarios(id_usuario),
+    fecha           TIMESTAMP    DEFAULT NOW(),
+    diagnostico     VARCHAR(500) NOT NULL,
+    tratamiento     VARCHAR(500) NOT NULL,
+    observaciones   VARCHAR(500),
+    peso_actual_kg  NUMERIC(5,2)
+);
+
+-- ------------------------------------------------------------
+-- 7. CONSULTAS DE ATENCION AL CLIENTE
+-- ------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS consultas_atencion (
+    id_consulta      BIGSERIAL    PRIMARY KEY,
+    id_cliente       BIGINT       NOT NULL
+                        REFERENCES usuarios(id_usuario),
+    asunto           VARCHAR(100) NOT NULL,
+    mensaje          VARCHAR(500) NOT NULL,
+    respuesta        VARCHAR(500),
+    id_recepcionista BIGINT       REFERENCES usuarios(id_usuario),
+    estado           VARCHAR(20)  DEFAULT 'PENDIENTE'
+                        CHECK (estado IN ('PENDIENTE', 'RESPONDIDA')),
+    fecha_creacion   TIMESTAMP    DEFAULT NOW(),
+    fecha_respuesta  TIMESTAMP
+);
+
+ALTER TABLE consultas_atencion ALTER COLUMN id_cliente DROP NOT NULL;
+ALTER TABLE consultas_atencion ADD COLUMN IF NOT EXISTS nombre_contacto VARCHAR(150);
+ALTER TABLE consultas_atencion ADD COLUMN IF NOT EXISTS email_contacto  VARCHAR(150);

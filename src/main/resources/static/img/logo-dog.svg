@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="40" height="40">
+  <circle cx="50" cy="50" r="48" fill="#754d3f"/>
+  <!-- Silueta elegante de perro en perfil -->
+  <path d="M34 26 C31 22 25 24 23 30 C20 38 23 52 30 58 C32 60 34 68 34 76 C34 78 36 80 39 80 C42 80 43 78 44 74 C46 68 49 65 52 64 C56 63 61 66 65 74 C66 76 68 78 71 78 C74 78 75 76 75 72 C75 62 70 54 66 48 C63 43 62 38 64 33 C65 29 62 25 58 26 C54 27 50 32 46 32 C41 32 37 29 34 26 Z" fill="#ffffff"/>
+  <circle cx="43" cy="40" r="2.5" fill="#754d3f"/>
+  <ellipse cx="32" cy="48" rx="3" ry="2" fill="#754d3f"/>
+</svg>

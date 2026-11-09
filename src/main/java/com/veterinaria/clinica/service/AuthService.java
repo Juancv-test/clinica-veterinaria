@@ -7,7 +7,6 @@ import com.veterinaria.clinica.dao.UsuarioDao;
 import com.veterinaria.clinica.security.JwtUtil;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 /**
@@ -28,7 +27,7 @@ public class AuthService {
 
     public LoginResponseDto login(LoginRequestDto request) {
         // 1. Delegar a Spring Security la verificación de credenciales y hash BCrypt
-        Authentication auth = authenticationManager.authenticate(
+        authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.email(), request.password())
         );
 

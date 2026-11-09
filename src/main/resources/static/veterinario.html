@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Veterinaria - Panel de Veterinario</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,600;0,700;0,800;1,800&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/veterinario.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <nav class="navbar navbar-panel">
+        <div class="container-fluid">
+            <div class="d-flex align-items-center">
+                <span class="navbar-brand font-brand mb-0 h1">Veterinaria Huesitos</span>
+                <span class="brand-badge ms-2">Area Medica</span>
+            </div>
+            <div class="d-flex align-items-center">
+                <a href="index.html" class="btn btn-outline-custom btn-sm me-3">Inicio</a>
+                <button class="btn btn-emergency-custom btn-sm me-3" onclick="abrirModalEmergenciaExpress()">+ Ingreso de Emergencia Express (Triage)</button>
+                <span class="me-3 fw-bold" id="usuarioNombre">Veterinario</span>
+                <button class="btn btn-outline-custom btn-sm" onclick="logout()">Cerrar Sesion</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <ul class="nav nav-pills nav-pills-custom mb-3" id="pills-tab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="tab-citas" data-bs-toggle="pill" data-bs-target="#pills-citas"
+                    type="button" role="tab">Gestionar Citas y Agenda</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tab-historial" data-bs-toggle="pill" data-bs-target="#pills-historial"
+                    type="button" role="tab">Historial Clinico</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tab-emergencias" data-bs-toggle="pill" data-bs-target="#pills-emergencias"
+                    type="button" role="tab">Atencion de Emergencia</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tab-atenciones" data-bs-toggle="pill" data-bs-target="#pills-atenciones"
+                    type="button" role="tab">Atenciones Realizadas</button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="pills-tabContent">
+
+            <!-- ================= PESTANA 1: GESTIONAR CITAS Y AGENDA ================= -->
+            <div class="tab-pane fade show active" id="pills-citas" role="tabpanel">
+                <div class="panel-card mb-4">
+                    <div class="panel-card-header d-flex justify-content-between align-items-center">
+                        <h5 class="panel-card-title">Citas Programadas y Agenda Medica</h5>
+                        <div>
+                            <button class="btn btn-emergency-custom btn-sm" onclick="abrirModalEmergenciaExpress()">+ Ingreso de Emergencia</button>
+                            <button class="btn btn-outline-custom btn-sm ms-2" onclick="cargarCitas()">Refrescar</button>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label small">Ver citas:</label>
+                                <select id="filtroTipoCitas" class="form-select form-select-sm"
+                                    onchange="cargarCitas()">
+                                    <option value="MIS_CITAS">Mis citas asignadas</option>
+                                    <option value="TODAS">Todas las citas de la veterinaria</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small">Estado:</label>
+                                <select id="filtroEstadoCita" class="form-select form-select-sm"
+                                    onchange="cargarCitas()">
+                                    <option value="">Todos</option>
+                                    <option value="PROGRAMADA" selected>PROGRAMADA (Pendientes)</option>
+                                    <option value="ATENDIDA">ATENDIDA</option>
+                                    <option value="CANCELADA">CANCELADA</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 align-self-end text-end">
+                                <button class="btn btn-medico-custom btn-sm" onclick="abrirModalAtencionDirecta()">+ Atender Paciente Directo</button>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-custom table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Fecha</th>
+                                        <th>Hora</th>
+                                        <th>Mascota</th>
+                                        <th>Servicio</th>
+                                        <th>Veterinario</th>
+                                        <th>Prioridad</th>
+                                        <th>Contacto Rapido</th>
+                                        <th>Estado</th>
+                                        <th>Motivo</th>
+                                        <th>Accion</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaCitas"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= PESTANA 2: HISTORIAL CLINICO ================= -->
+            <div class="tab-pane fade" id="pills-historial" role="tabpanel">
+                <div class="panel-card mb-4">
+                    <div class="panel-card-header">
+                        <h5 class="panel-card-title">Consulta de Historial Clinico de Pacientes</h5>
+                    </div>
+                    <div class="p-4">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">Seleccionar Mascota / Paciente:</label>
+                                <select id="historial_mascota_sel" class="form-select"
+                                    onchange="consultarHistorialMascota()">
+                                    <option value="">Seleccione una mascota para ver su expediente...</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 align-self-end text-end">
+                                <button class="btn btn-outline-custom btn-sm"
+                                    onclick="cargarMascotasParaHistorial()">Refrescar Lista de Mascotas</button>
+                            </div>
+                        </div>
+
+                        <div id="contenedorHistorial" class="d-none">
+                            <div class="panel-card mb-3">
+                                <div class="p-3" style="background: var(--color-primario-light); border-radius: 12px;">
+                                    <h6 class="fw-bold mb-1" id="h_pet_nombre">Nombre Mascota</h6>
+                                    <p class="mb-0 small text-muted" id="h_pet_info">Especie - Raza - Sexo - Dueño</p>
+                                </div>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="table table-custom table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Fecha de Consulta</th>
+                                            <th>Veterinario</th>
+                                            <th>Peso (kg)</th>
+                                            <th>Diagnostico</th>
+                                            <th>Tratamiento / Receta</th>
+                                            <th>Observaciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tablaHistorialClinico"></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div id="mensajeHistorialVacio" class="text-center text-muted py-4">
+                            Seleccione una mascota para consultar su historial de atenciones medicas.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= PESTANA 3: ATENCION DE EMERGENCIA ================= -->
+            <div class="tab-pane fade" id="pills-emergencias" role="tabpanel">
+                <div class="panel-card panel-card-emergency mb-4">
+                    <div class="panel-card-header d-flex justify-content-between align-items-center">
+                        <h5 class="panel-card-title">Modulo de Atencion de Emergencias Veterinarias</h5>
+                        <button class="btn btn-emergency-custom btn-sm"
+                            onclick="abrirModalEmergenciaExpress()">+ Ingreso Express de Emergencia</button>
+                    </div>
+                    <div class="p-4">
+                        <p class="text-muted small">
+                            Los pacientes ingresados por emergencia se situan al tope de la cola con maxima prioridad.
+                            Atienda al paciente de inmediato para estabilizarlo; los datos del dueño seran regularizados
+                            al concluir la emergencia.
+                        </p>
+                        <div class="table-responsive">
+                            <table class="table table-custom table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Cita ID</th>
+                                        <th>Fecha</th>
+                                        <th>Hora</th>
+                                        <th>Mascota</th>
+                                        <th>Servicio</th>
+                                        <th>Contacto / Quien lo trajo</th>
+                                        <th>Motivo de Emergencia</th>
+                                        <th>Estado</th>
+                                        <th>Accion Inmediata</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaEmergencias"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= PESTANA 4: ATENCIONES REALIZADAS ================= -->
+            <div class="tab-pane fade" id="pills-atenciones" role="tabpanel">
+                <div class="panel-card mb-4">
+                    <div class="panel-card-header d-flex justify-content-between align-items-center">
+                        <h5 class="panel-card-title">Mis Atenciones Registradas</h5>
+                        <button class="btn btn-outline-custom btn-sm"
+                            onclick="cargarMisAtenciones()">Refrescar</button>
+                    </div>
+                    <div class="p-4">
+                        <div class="table-responsive">
+                            <table class="table table-custom table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Fecha y Hora</th>
+                                        <th>Mascota</th>
+                                        <th>Peso</th>
+                                        <th>Diagnostico</th>
+                                        <th>Tratamiento</th>
+                                        <th>Observaciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaMisAtenciones"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ================= MODAL: ATENDER MASCOTA Y REGISTRAR ATENCION ================= -->
+    <div class="modal fade" id="modalRegistrarAtencion" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content modal-content-custom">
+                <div class="modal-header-custom">
+                    <h5 class="modal-title" id="atencionModalTitle">Atender Paciente y Registrar Atencion Medica</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formAtencionMedica">
+                        <input type="hidden" id="at_id_cita">
+                        <div class="row g-2 mb-3">
+                            <div class="col-md-8">
+                                <label class="form-label small fw-bold">Mascota / Paciente *</label>
+                                <select id="at_id_mascota" class="form-select" required></select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small fw-bold">Peso Actual (kg)</label>
+                                <input type="number" step="0.1" id="at_peso" class="form-control" placeholder="Ej: 5.4">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Diagnostico Medico Clinico *</label>
+                            <textarea id="at_diagnostico" class="form-control" rows="3"
+                                placeholder="Detalle los signos, evaluacion y diagnostico del paciente..."
+                                required></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Tratamiento y Receta / Prescripcion *</label>
+                            <textarea id="at_tratamiento" class="form-control" rows="3"
+                                placeholder="Medicacion prescrita, dosis, via y dias de tratamiento..."
+                                required></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Observaciones e Indicaciones</label>
+                            <textarea id="at_observaciones" class="form-control" rows="2"
+                                placeholder="Recomendaciones, proxima visita, cuidados especiales..."></textarea>
+                        </div>
+
+                        <div class="text-end">
+                            <button type="button" class="btn btn-outline-custom" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-medico-custom ms-2">Guardar Atencion y Completar Cita</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= MODAL: INGRESO DE EMERGENCIA EXPRESS (TRIAGE RAPIDO) ================= -->
+    <div class="modal fade" id="modalEmergenciaExpress" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content modal-content-custom">
+                <div class="modal-header-custom">
+                    <h5 class="modal-title fw-bold">Triage de Emergencia Express (Atencion Inmediata)</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="small text-muted mb-3">
+                        Ingrese solo los datos esenciales para estabilizar al paciente de inmediato. Los datos formales
+                        del dueño se registraran despues.
+                    </p>
+                    <form id="formEmergenciaExpress">
+                        <div class="row g-2 mb-2">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">Especie *</label>
+                                <select id="em_exp_especie" class="form-select" required>
+                                    <option value="Perro">Perro (Canino)</option>
+                                    <option value="Gato">Gato (Felino)</option>
+                                    <option value="Otro">Otro</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">Sexo</label>
+                                <select id="em_exp_sexo" class="form-select">
+                                    <option value="M">Macho</option>
+                                    <option value="H">Hembra</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label small fw-bold">Nombre o Referencia Temporal</label>
+                            <input type="text" id="em_exp_nombre" class="form-control"
+                                placeholder="Ej: Canino mestizo atropellado, o nombre si lo sabe">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label small fw-bold">Motivo Urgente / Sintomas Criticos *</label>
+                            <textarea id="em_exp_motivo" class="form-control" rows="2"
+                                placeholder="Ej: Atropello en Av Principal, hemorragia, convulsion..."
+                                required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Contacto Rapido (Nombre y/o Celular)</label>
+                            <input type="text" id="em_exp_contacto" class="form-control"
+                                placeholder="Ej: Vecino Carlos 987654321 (quien lo trajo)">
+                        </div>
+                        <div class="text-end">
+                            <button type="button" class="btn btn-outline-custom" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-emergency-custom ms-2">Ingresar a Urgencias Ya</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        const token = localStorage.getItem('token');
+        const rol = localStorage.getItem('rol');
+        if (!token || (rol !== 'VETERINARIO' && rol !== 'ADMIN')) {
+            window.location.href = 'index.html';
+        }
+
+        document.getElementById('usuarioNombre').innerText = (localStorage.getItem('nombre') || 'Veterinario') + ' (' + rol + ')';
+
+        let citasGlobal = [];
+        let mascotasGlobal = [];
+        let serviciosGlobal = [];
+        let modalAtencionInst, modalEmergenciaExpInst;
+
+        document.addEventListener("DOMContentLoaded", () => {
+            modalAtencionInst = new bootstrap.Modal(document.getElementById('modalRegistrarAtencion'));
+            modalEmergenciaExpInst = new bootstrap.Modal(document.getElementById('modalEmergenciaExpress'));
+
+            cargarCitas();
+            cargarMascotasParaHistorial();
+            cargarServicios();
+            cargarMisAtenciones();
+        });
+
+        // ================= CITAS Y AGENDA =================
+        async function cargarCitas() {
+            try {
+                const tipo = document.getElementById('filtroTipoCitas').value;
+                const estado = document.getElementById('filtroEstadoCita').value;
+
+                let data;
+                if (tipo === 'MIS_CITAS') {
+                    data = await api.get('/citas/mis-citas');
+                } else {
+                    let url = '/citas?';
+                    if (estado) url += 'estado=' + estado + '&';
+                    data = await api.get(url);
+                }
+
+                citasGlobal = data || [];
+                if (tipo === 'MIS_CITAS' && estado) {
+                    citasGlobal = citasGlobal.filter(c => c.estado === estado);
+                }
+
+                renderizarCitas(citasGlobal);
+                renderizarEmergencias(citasGlobal.filter(c => c.esEmergencia && c.estado === 'PROGRAMADA'));
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function renderizarCitas(lista) {
+            let html = '';
+            if (lista.length === 0) {
+                html = '<tr><td colspan="11" class="text-center text-muted">No hay citas en este filtro</td></tr>';
+            } else {
+                lista.forEach(c => {
+                    const estadoBadge = c.estado === 'PROGRAMADA' ? 'badge-status-programada' : (c.estado === 'ATENDIDA' ? 'badge-status-atendida' : 'badge-status-cancelada');
+                    const prioridadBadge = c.esEmergencia ? '<span class="badge-status badge-prioridad-alta">EMERGENCIA</span>' : '<span class="badge-status badge-prioridad-baja">REGULAR</span>';
+
+                    let accion = '-';
+                    if (c.estado === 'PROGRAMADA') {
+                        accion = `<button class="btn btn-medico-custom btn-sm" onclick="abrirAtenderCita(${c.idCita})">Atender Paciente</button>`;
+                    } else if (c.estado === 'ATENDIDA') {
+                        accion = `<button class="btn btn-outline-custom btn-sm" onclick="verHistorialDirecto(${c.idMascota})">Ver Expediente</button>`;
+                    }
+
+                    html += `<tr class="${c.esEmergencia && c.estado === 'PROGRAMADA' ? 'table-danger' : ''}">
+                    <td>${c.idCita}</td>
+                    <td>${c.fecha}</td>
+                    <td>${c.hora}</td>
+                    <td><strong>${c.nombreMascota}</strong></td>
+                    <td>${c.nombreServicio}</td>
+                    <td>${c.nombreVeterinario || '<span class="text-muted">Sin asignar</span>'}</td>
+                    <td>${prioridadBadge}</td>
+                    <td>${c.contactoEmergencia || '-'}</td>
+                    <td><span class="badge-status ${estadoBadge}">${c.estado}</span></td>
+                    <td>${c.motivo || '-'}</td>
+                    <td>${accion}</td>
+                </tr>`;
+                });
+            }
+            document.getElementById('tablaCitas').innerHTML = html;
+        }
+
+        function renderizarEmergencias(lista) {
+            let html = '';
+            if (lista.length === 0) {
+                html = '<tr><td colspan="9" class="text-center text-muted">No hay emergencias pendientes en este momento</td></tr>';
+            } else {
+                lista.forEach(c => {
+                    html += `<tr>
+                    <td><strong>#${c.idCita}</strong></td>
+                    <td>${c.fecha}</td>
+                    <td>${c.hora}</td>
+                    <td><strong>${c.nombreMascota}</strong></td>
+                    <td>${c.nombreServicio}</td>
+                    <td>${c.contactoEmergencia || '<span class="text-muted">No especificado</span>'}</td>
+                    <td>${c.motivo || 'Emergencia prioritaria'}</td>
+                    <td><span class="badge-status badge-prioridad-alta">${c.estado}</span></td>
+                    <td>
+                        <button class="btn btn-emergency-custom btn-sm" onclick="abrirAtenderCita(${c.idCita})">Atender de Inmediato</button>
+                    </td>
+                </tr>`;
+                });
+            }
+            document.getElementById('tablaEmergencias').innerHTML = html;
+        }
+
+        // ================= ATENCION MEDICA Y REGISTRO =================
+        async function cargarMascotasParaHistorial() {
+            try {
+                const data = await api.get('/mascotas');
+                mascotasGlobal = data || [];
+                const selHistorial = document.getElementById('historial_mascota_sel');
+                const selAtencion = document.getElementById('at_id_mascota');
+
+                selHistorial.innerHTML = '<option value="">Seleccione una mascota para ver su expediente...</option>';
+                selAtencion.innerHTML = '<option value="">Seleccione una mascota...</option>';
+
+                mascotasGlobal.forEach(m => {
+                    const opt = `<option value="${m.idMascota}">${m.nombre} (${m.especie}) - Dueño: ${m.nombreCliente || (m.esTemporal ? 'Temporal Urgencia' : 'ID ' + m.idCliente)}</option>`;
+                    selHistorial.innerHTML += opt;
+                    selAtencion.innerHTML += opt;
+                });
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function abrirAtenderCita(idCita) {
+            const c = citasGlobal.find(item => item.idCita === idCita);
+            if (!c) return;
+
+            document.getElementById('formAtencionMedica').reset();
+            document.getElementById('at_id_cita').value = c.idCita;
+            document.getElementById('at_id_mascota').value = c.idMascota;
+            document.getElementById('atencionModalTitle').innerText = 'Atender Paciente: ' + c.nombreMascota + ' (Cita #' + c.idCita + ')';
+
+            const pet = mascotasGlobal.find(m => m.idMascota === c.idMascota);
+            if (pet && pet.pesoKg) {
+                document.getElementById('at_peso').value = pet.pesoKg;
+            }
+
+            modalAtencionInst.show();
+        }
+
+        function abrirModalAtencionDirecta() {
+            document.getElementById('formAtencionMedica').reset();
+            document.getElementById('at_id_cita').value = '';
+            document.getElementById('atencionModalTitle').innerText = 'Registrar Atencion Medica Directa';
+            modalAtencionInst.show();
+        }
+
+        document.getElementById('formAtencionMedica').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const idCitaVal = document.getElementById('at_id_cita').value;
+            const pesoVal = document.getElementById('at_peso').value;
+
+            const payload = {
+                idCita: idCitaVal ? parseInt(idCitaVal) : null,
+                idMascota: parseInt(document.getElementById('at_id_mascota').value),
+                diagnostico: document.getElementById('at_diagnostico').value.trim(),
+                tratamiento: document.getElementById('at_tratamiento').value.trim(),
+                observaciones: document.getElementById('at_observaciones').value.trim(),
+                pesoActualKg: pesoVal ? parseFloat(pesoVal) : null
+            };
+
+            try {
+                await api.post('/atenciones', payload);
+                alert('Atencion medica registrada con exito en el historial clinico.');
+                modalAtencionInst.hide();
+                cargarCitas();
+                cargarMisAtenciones();
+                cargarMascotasParaHistorial();
+            } catch (err) {
+                // Manejado en api.js
+            }
+        });
+
+        // ================= INGRESO DE EMERGENCIA EXPRESS =================
+        function abrirModalEmergenciaExpress() {
+            document.getElementById('formEmergenciaExpress').reset();
+            modalEmergenciaExpInst.show();
+        }
+
+        document.getElementById('formEmergenciaExpress').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = {
+                especie: document.getElementById('em_exp_especie').value,
+                sexo: document.getElementById('em_exp_sexo').value,
+                nombreTemporal: document.getElementById('em_exp_nombre').value.trim(),
+                motivoUrgencia: document.getElementById('em_exp_motivo').value.trim(),
+                contactoEmergencia: document.getElementById('em_exp_contacto').value.trim()
+            };
+
+            try {
+                await api.post('/emergencias/ingreso-express', payload);
+                alert('Caso critico ingresado inmediatamente al frente de la cola de espera.');
+                modalEmergenciaExpInst.hide();
+                cargarCitas();
+                cargarMascotasParaHistorial();
+            } catch (err) {
+                // Manejado en api.js
+            }
+        });
+
+        // ================= CONSULTAR HISTORIAL CLINICO =================
+        async function consultarHistorialMascota() {
+            const idMascota = document.getElementById('historial_mascota_sel').value;
+            if (!idMascota) {
+                document.getElementById('contenedorHistorial').classList.add('d-none');
+                document.getElementById('mensajeHistorialVacio').classList.remove('d-none');
+                return;
+            }
+
+            const pet = mascotasGlobal.find(m => m.idMascota === parseInt(idMascota));
+            if (pet) {
+                document.getElementById('h_pet_nombre').innerText = pet.nombre;
+                document.getElementById('h_pet_info').innerText = 'Especie: ' + pet.especie + ' | Raza: ' + (pet.raza || 'Mestizo') + ' | Sexo: ' + (pet.sexo === 'M' ? 'Macho' : 'Hembra') + ' | Dueño: ' + (pet.nombreCliente || (pet.esTemporal ? 'Temporal Urgencia' : 'ID ' + pet.idCliente));
+            }
+
+            try {
+                const historial = await api.get('/atenciones/mascota/' + idMascota);
+                document.getElementById('contenedorHistorial').classList.remove('d-none');
+                document.getElementById('mensajeHistorialVacio').classList.add('d-none');
+
+                let html = '';
+                if (!historial || historial.length === 0) {
+                    html = '<tr><td colspan="6" class="text-center text-muted">Esta mascota aun no tiene registros medicos en su historial clinico</td></tr>';
+                } else {
+                    historial.forEach(h => {
+                        const fecha = h.fecha ? h.fecha.replace('T', ' ').substring(0, 16) : '-';
+                        html += `<tr>
+                        <td><strong>${fecha}</strong></td>
+                        <td>${h.nombreVeterinario || 'Veterinario'}</td>
+                        <td>${h.pesoActualKg ? h.pesoActualKg + ' kg' : '-'}</td>
+                        <td><span class="fw-semibold" style="color: var(--color-medico);">${h.diagnostico}</span></td>
+                        <td>${h.tratamiento}</td>
+                        <td>${h.observaciones || '-'}</td>
+                    </tr>`;
+                    });
+                }
+                document.getElementById('tablaHistorialClinico').innerHTML = html;
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function verHistorialDirecto(idMascota) {
+            const tabEl = document.getElementById('tab-historial');
+            const tab = new bootstrap.Tab(tabEl);
+            tab.show();
+            document.getElementById('historial_mascota_sel').value = idMascota;
+            consultarHistorialMascota();
+        }
+
+        // ================= SERVICIOS Y MIS ATENCIONES =================
+        async function cargarServicios() {
+            try {
+                const data = await api.get('/servicios');
+                serviciosGlobal = data || [];
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function cargarMisAtenciones() {
+            try {
+                const atenciones = await api.get('/atenciones/mis-atenciones');
+                let html = '';
+                if (!atenciones || atenciones.length === 0) {
+                    html = '<tr><td colspan="7" class="text-center text-muted">Aun no has registrado atenciones clinicas</td></tr>';
+                } else {
+                    atenciones.forEach(a => {
+                        const fecha = a.fecha ? a.fecha.replace('T', ' ').substring(0, 16) : '-';
+                        html += `<tr>
+                        <td>${a.idAtencion}</td>
+                        <td>${fecha}</td>
+                        <td><strong>${a.nombreMascota}</strong></td>
+                        <td>${a.pesoActualKg ? a.pesoActualKg + ' kg' : '-'}</td>
+                        <td>${a.diagnostico}</td>
+                        <td>${a.tratamiento}</td>
+                        <td>${a.observaciones || '-'}</td>
+                    </tr>`;
+                    });
+                }
+                document.getElementById('tablaMisAtenciones').innerHTML = html;
+            } catch (e) {
+                console.error(e);
+            }
+        }
+    </script>
+</body>
+
+</html>

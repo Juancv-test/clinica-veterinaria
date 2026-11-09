@@ -71,7 +71,6 @@ public class UsuarioDaoImpl implements UsuarioDao {
 
     @Override
     public List<Usuario> findAll() {
-        // ArrayList explícito para demostrar la estructura de datos requerida por el curso
         String sql = SELECT_BASE + "WHERE u.activo = true ORDER BY u.id_usuario";
         return new ArrayList<>(jdbc.query(sql, usuarioMapper));
     }
@@ -125,6 +124,11 @@ public class UsuarioDaoImpl implements UsuarioDao {
     @Override
     public void updateRol(Long id, Integer idRol) {
         jdbc.update("UPDATE usuarios SET id_rol = ? WHERE id_usuario = ?", idRol, id);
+    }
+
+    @Override
+    public void updatePassword(Long id, String passwordHash) {
+        jdbc.update("UPDATE usuarios SET password_hash = ? WHERE id_usuario = ?", passwordHash, id);
     }
 
     @Override

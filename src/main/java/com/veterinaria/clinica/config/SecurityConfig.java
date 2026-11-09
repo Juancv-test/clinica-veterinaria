@@ -21,11 +21,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.List;
 
 /**
- * Configuración principal de Spring Security.
- *
- * En Spring Security 6+ (y 7) se usa SecurityFilterChain en lugar del antiguo
- * WebSecurityConfigurerAdapter (que fue eliminado).
- * Se usa la DSL con lambdas: csrf(c -> c.disable()), no el estilo encadenado antiguo.
+ * Configuracion principal de Spring Security con control de acceso basado en roles (RBAC).
  */
 @Configuration
 @EnableWebSecurity
@@ -43,85 +39,101 @@ public class SecurityConfig {
         this.accessDeniedHandler = accessDeniedHandler;
     }
 
-    /**
-     * Define las reglas de seguridad HTTP.
-     * Orden de las reglas: de más específico a más general.
-     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                // Deshabilitar CSRF: no aplica a APIs REST stateless con JWT
                 .csrf(csrf -> csrf.disable())
-
-                // Configurar CORS para el frontend en localhost
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-
-                // Sin sesiones: cada petición se autentica por su propio token
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
-                // Reglas de autorización por URL (orden importa: primero las más específicas)
                 .authorizeHttpRequests(auth -> auth
 
-                        // --- Rutas públicas ---
+                        // --- Rutas publicas ---
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/", "/index.html", "/registro.html",
-                                "/cliente.html", "/admin.html").permitAll()
-                        .requestMatchers("/js/**", "/css/**", "/favicon.ico").permitAll()
+                                "/cliente.html", "/admin.html",
+                                "/recepcionista.html", "/veterinario.html").permitAll()
+                        // --- Recursos estaticos publicos ---
+                        .requestMatchers("/js/**", "/css/**", "/img/**", "/favicon.ico").permitAll()
 
-                        // --- Servicios: cualquier usuario autenticado (sin importar rol) ---
-                        .requestMatchers(HttpMethod.GET, "/api/servicios/**").authenticated()
+                        // --- Servicios: consulta publica para la pagina principal y usuarios ---
+                        .requestMatchers(HttpMethod.GET, "/api/servicios/**").permitAll()
 
-                        // --- Gestión: solo ADMIN ---
-                        // hasRole("ADMIN") internamente busca "ROLE_ADMIN" en las authorities
+                        // --- Mascotas ---
+                        .requestMatchers("/api/mascotas/mis-mascotas").hasRole("CLIENTE")
+                        .requestMatchers(HttpMethod.POST, "/api/mascotas").hasAnyRole("ADMIN", "RECEPCIONISTA", "CLIENTE")
+                        .requestMatchers(HttpMethod.PUT, "/api/mascotas/**").hasAnyRole("ADMIN", "RECEPCIONISTA", "CLIENTE")
+                        .requestMatchers(HttpMethod.DELETE, "/api/mascotas/**").hasAnyRole("ADMIN", "RECEPCIONISTA", "CLIENTE")
+                        .requestMatchers(HttpMethod.GET, "/api/mascotas/**").hasAnyRole("ADMIN", "RECEPCIONISTA", "VETERINARIO", "CLIENTE")
+
+                        // --- Citas ---
+                        .requestMatchers("/api/citas/mis-citas").hasAnyRole("CLIENTE", "VETERINARIO", "ADMIN", "RECEPCIONISTA")
+                        .requestMatchers("/api/citas/solicitar").hasRole("CLIENTE")
+                        .requestMatchers("/api/citas/emergencia").hasAnyRole("ADMIN", "RECEPCIONISTA", "VETERINARIO")
+                        .requestMatchers(HttpMethod.PATCH, "/api/citas/*/cancelar").hasAnyRole("ADMIN", "RECEPCIONISTA", "CLIENTE")
+                        .requestMatchers(HttpMethod.PATCH, "/api/citas/*/veterinario").hasAnyRole("ADMIN", "RECEPCIONISTA")
+                        .requestMatchers(HttpMethod.GET, "/api/citas/pendientes").hasAnyRole("ADMIN", "RECEPCIONISTA", "VETERINARIO")
+                        .requestMatchers(HttpMethod.GET, "/api/citas/**").hasAnyRole("ADMIN", "RECEPCIONISTA", "VETERINARIO")
+                        .requestMatchers(HttpMethod.POST, "/api/citas/**").hasAnyRole("ADMIN", "RECEPCIONISTA")
+                        .requestMatchers(HttpMethod.PUT, "/api/citas/**").hasAnyRole("ADMIN", "RECEPCIONISTA")
+
+                        // --- Emergencias Express y Regularizacion ---
+                        .requestMatchers("/api/emergencias/**").hasAnyRole("ADMIN", "RECEPCIONISTA", "VETERINARIO")
+
+                        // --- Atenciones e Historial Clinico ---
+                        .requestMatchers(HttpMethod.POST, "/api/atenciones/**").hasAnyRole("ADMIN", "VETERINARIO")
+                        .requestMatchers(HttpMethod.GET, "/api/atenciones/mascota/**").hasAnyRole("ADMIN", "VETERINARIO", "RECEPCIONISTA", "CLIENTE")
+                        .requestMatchers(HttpMethod.GET, "/api/atenciones/mis-atenciones").hasAnyRole("ADMIN", "VETERINARIO")
+                        .requestMatchers(HttpMethod.GET, "/api/atenciones/**").hasAnyRole("ADMIN", "VETERINARIO")
+
+                        // --- Atencion al Cliente / Consultas ---
+                        .requestMatchers(HttpMethod.POST, "/api/consultas/publica").permitAll()
+                        .requestMatchers("/api/consultas/mis-consultas").hasRole("CLIENTE")
+                        .requestMatchers(HttpMethod.POST, "/api/consultas").hasRole("CLIENTE")
+                        .requestMatchers(HttpMethod.PUT, "/api/consultas/*/responder").hasAnyRole("ADMIN", "RECEPCIONISTA")
+                        .requestMatchers(HttpMethod.GET, "/api/consultas/**").hasAnyRole("ADMIN", "RECEPCIONISTA")
+
+                        // --- Perfil exclusivo para Clientes ---
+                        .requestMatchers("/api/cliente/**").hasRole("CLIENTE")
+
+                        // --- Perfil propio de usuario autenticado ---
+                        .requestMatchers("/api/usuarios/perfil").authenticated()
+
+                        // --- Gestion de Usuarios ---
+                        .requestMatchers(HttpMethod.GET, "/api/usuarios/**").hasAnyRole("ADMIN", "RECEPCIONISTA")
+                        .requestMatchers(HttpMethod.POST, "/api/usuarios/**").hasAnyRole("ADMIN", "RECEPCIONISTA")
                         .requestMatchers("/api/usuarios/**").hasRole("ADMIN")
-                        .requestMatchers("/api/mascotas/**").hasRole("ADMIN")
-                        .requestMatchers("/api/clientes/**").hasRole("ADMIN")
-                        .requestMatchers("/api/citas/**").hasRole("ADMIN")
 
-                        // Cualquier otro endpoint requiere autenticación
+                        // Cualquier otro endpoint
                         .anyRequest().authenticated()
                 )
-
-                // Manejadores JSON para 401 y 403
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(authEntryPoint)
                         .accessDeniedHandler(accessDeniedHandler)
                 )
-
-                // Insertar el filtro JWT antes del filtro de formulario de Spring
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
-    /**
-     * Expone el AuthenticationManager como bean.
-     * Lo usa AuthController para autenticar email+contraseña en el login.
-     */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
             throws Exception {
         return config.getAuthenticationManager();
     }
 
-    /** Bean de codificador BCrypt. Inyectado en servicios y en AdminUserInitializer. */
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    /**
-     * Configuración CORS: permite peticiones desde el frontend local.
-     * En producción se debería restringir a los orígenes reales del dominio.
-     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of(
-                "http://localhost:8080",    // mismo servidor (frontend en static)
-                "http://localhost:3000",    // React / Vue dev server
-                "http://127.0.0.1:5500"    // Live Server de VS Code
+                "http://localhost:8080",
+                "http://localhost:3000",
+                "http://127.0.0.1:5500"
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));

@@ -2,98 +2,146 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Veterinaria - Administración</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Veterinaria Huesitos - Panel de Administrador</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@1,800;1,900&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/admin.css">
 </head>
 <body>
-<nav class="navbar navbar-dark bg-dark">
+<nav class="navbar navbar-expand-lg navbar-panel sticky-top">
     <div class="container-fluid">
-        <span class="navbar-brand">Panel de Administrador</span>
-        <button class="btn btn-outline-light btn-sm" onclick="logout()">Cerrar Sesión</button>
+        <div class="d-flex align-items-center">
+            <svg class="me-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="34" height="34">
+                <circle cx="50" cy="50" r="48" fill="#754d3f"/>
+                <path d="M34 26 C31 22 25 24 23 30 C20 38 23 52 30 58 C32 60 34 68 34 76 C34 78 36 80 39 80 C42 80 43 78 44 74 C46 68 49 65 52 64 C56 63 61 66 65 74 C66 76 68 78 71 78 C74 78 75 76 75 72 C75 62 70 54 66 48 C63 43 62 38 64 33 C65 29 62 25 58 26 C54 27 50 32 46 32 C41 32 37 29 34 26 Z" fill="#ffffff"/>
+                <circle cx="43" cy="40" r="2.5" fill="#754d3f"/>
+                <ellipse cx="32" cy="48" rx="3" ry="2" fill="#754d3f"/>
+            </svg>
+            <span class="font-brand fs-5 me-2">Veterinaria Huesitos</span>
+            <span class="brand-badge">ADMINISTRADOR</span>
+        </div>
+        <div class="d-flex align-items-center gap-2 mt-2 mt-lg-0">
+            <a href="index.html" class="btn btn-outline-custom btn-sm">Inicio</a>
+            <a href="recepcionista.html" class="btn btn-outline-custom btn-sm">Vista Recepción</a>
+            <a href="veterinario.html" class="btn btn-outline-custom btn-sm">Vista Médico</a>
+            <button class="btn btn-primary-custom btn-sm ms-2" onclick="logout()">Cerrar Sesión</button>
+        </div>
     </div>
 </nav>
 
-<div class="container mt-4">
-    <ul class="nav nav-tabs" id="myTab" role="tablist">
-        <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#usuarios">Usuarios</a></li>
-        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#citas">Citas en Cola</a></li>
-        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#servicios">Servicios</a></li>
+<div class="container my-4">
+    <ul class="nav nav-pills nav-pills-custom mb-3" id="myTab" role="tablist">
+        <li class="nav-item"><a class="nav-link active" data-bs-toggle="pill" href="#usuarios">Gestión de Usuarios</a></li>
+        <li class="nav-item"><a class="nav-link" data-bs-toggle="pill" href="#citas">Cola de Citas</a></li>
+        <li class="nav-item"><a class="nav-link" data-bs-toggle="pill" href="#servicios">Catálogo de Servicios</a></li>
     </ul>
 
-    <div class="tab-content mt-3">
+    <div class="tab-content">
         <!-- Pestaña Usuarios -->
         <div class="tab-pane fade show active" id="usuarios">
-            <button class="btn btn-success mb-2" onclick="cargarUsuarios()">Refrescar Lista</button>
-            <button class="btn btn-primary mb-2 ms-2" onclick="abrirModalCrear()">+ Nuevo Usuario</button>
-            <table class="table table-bordered mt-2">
-                <thead class="table-light">
-                    <tr><th>ID</th><th>Nombres</th><th>DNI</th><th>Email</th><th>Rol</th><th>Acciones</th></tr>
-                </thead>
-                <tbody id="tablaUsuarios"></tbody>
-            </table>
+            <div class="panel-card">
+                <div class="panel-card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+                    <h5 class="panel-card-title">Usuarios del Sistema</h5>
+                    <div>
+                        <button class="btn btn-outline-custom btn-sm" onclick="cargarUsuarios()">Refrescar</button>
+                        <button class="btn btn-primary-custom btn-sm ms-2" onclick="abrirModalCrear()">+ Nuevo Usuario</button>
+                    </div>
+                </div>
+                <div class="p-3">
+                    <div class="table-responsive">
+                        <table class="table table-custom table-hover">
+                            <thead>
+                                <tr><th>ID</th><th>Nombres</th><th>DNI</th><th>Email</th><th>Rol</th><th>Acciones</th></tr>
+                            </thead>
+                            <tbody id="tablaUsuarios"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Pestaña Citas -->
         <div class="tab-pane fade" id="citas">
-            <button class="btn btn-success mb-2" onclick="cargarColaCitas()">Refrescar Cola</button>
-            <table class="table table-bordered">
-                <thead class="table-light">
-                    <tr><th>Fecha</th><th>Hora</th><th>Mascota</th><th>Servicio</th><th>Estado</th></tr>
-                </thead>
-                <tbody id="tablaCitas"></tbody>
-            </table>
+            <div class="panel-card">
+                <div class="panel-card-header d-flex justify-content-between align-items-center">
+                    <h5 class="panel-card-title">Citas en Espera / Programadas</h5>
+                    <button class="btn btn-outline-custom btn-sm" onclick="cargarColaCitas()">Refrescar</button>
+                </div>
+                <div class="p-3">
+                    <div class="table-responsive">
+                        <table class="table table-custom table-hover">
+                            <thead>
+                                <tr><th>Fecha</th><th>Hora</th><th>Mascota</th><th>Servicio</th><th>Estado</th></tr>
+                            </thead>
+                            <tbody id="tablaCitas"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Pestaña Servicios -->
         <div class="tab-pane fade" id="servicios">
-            <button class="btn btn-success mb-2" onclick="cargarServicios()">Refrescar Servicios</button>
-            <table class="table table-bordered">
-                <thead class="table-light">
-                    <tr><th>ID</th><th>Nombre</th><th>Precio</th></tr>
-                </thead>
-                <tbody id="tablaServicios"></tbody>
-            </table>
+            <div class="panel-card">
+                <div class="panel-card-header d-flex justify-content-between align-items-center">
+                    <h5 class="panel-card-title">Servicios Veterinarios</h5>
+                    <button class="btn btn-outline-custom btn-sm" onclick="cargarServicios()">Refrescar</button>
+                </div>
+                <div class="p-3">
+                    <div class="table-responsive">
+                        <table class="table table-custom table-hover">
+                            <thead>
+                                <tr><th>ID</th><th>Nombre del Servicio</th><th>Precio</th></tr>
+                            </thead>
+                            <tbody id="tablaServicios"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 <!-- Modal para Crear/Editar Usuario -->
 <div class="modal fade" id="usuarioModal" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content modal-content-custom">
+      <div class="modal-header modal-header-custom">
         <h5 class="modal-title" id="modalTitle">Usuario</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
-      <div class="modal-body">
+      <div class="modal-body p-4">
         <form id="usuarioForm">
             <input type="hidden" id="u_id">
-            <div class="row mb-2">
-                <div class="col"><input type="text" id="u_nombres" class="form-control" placeholder="Nombres" required></div>
-                <div class="col"><input type="text" id="u_apellidos" class="form-control" placeholder="Apellidos" required></div>
+            <div class="row g-2 mb-2">
+                <div class="col"><input type="text" id="u_nombres" class="form-control form-control-panel" placeholder="Nombres" required></div>
+                <div class="col"><input type="text" id="u_apellidos" class="form-control form-control-panel" placeholder="Apellidos" required></div>
             </div>
-            <div class="mb-2"><input type="text" id="u_dni" class="form-control" placeholder="DNI (8 dígitos)" required></div>
-            <div class="mb-2"><input type="email" id="u_email" class="form-control" placeholder="Correo electrónico" required></div>
+            <div class="mb-2"><input type="text" id="u_dni" class="form-control form-control-panel" placeholder="DNI (8 dígitos)" maxlength="8" pattern="\d{8}" inputmode="numeric" oninput="this.value = this.value.replace(/\D/g, '').slice(0, 8)" required></div>
+            <div class="mb-2"><input type="email" id="u_email" class="form-control form-control-panel" placeholder="Correo electrónico" required></div>
             <div class="mb-2">
-                <input type="text" id="u_telefono" class="form-control" placeholder="Teléfono">
-            </div>
-            <div class="mb-2">
-                <input type="text" id="u_direccion" class="form-control" placeholder="Dirección">
+                <input type="tel" id="u_telefono" class="form-control form-control-panel" placeholder="Celular (9 dígitos, ej: 919430986)" maxlength="9" pattern="\d{9}" inputmode="numeric" oninput="this.value = this.value.replace(/\D/g, '').slice(0, 9)">
             </div>
             <div class="mb-2">
-                <input type="password" id="u_password" class="form-control" placeholder="Contraseña" required>
-                <small class="text-muted" id="pwdHelp">Obligatoria al crear o editar.</small>
+                <input type="text" id="u_direccion" class="form-control form-control-panel" placeholder="Dirección">
+            </div>
+            <div class="mb-2">
+                <input type="password" id="u_password" class="form-control form-control-panel" placeholder="Contraseña">
+                <small class="text-muted" id="pwdHelp">Obligatoria al crear un usuario nuevo.</small>
             </div>
             <div class="mb-3">
-                <label>Rol del Sistema:</label>
-                <select id="u_rol" class="form-select" required>
+                <label class="form-label small fw-bold">Rol del Sistema:</label>
+                <select id="u_rol" class="form-select form-select-panel" required>
                     <option value="1">ADMIN</option>
                     <option value="2">CLIENTE</option>
                     <option value="3">RECEPCIONISTA</option>
                     <option value="4">VETERINARIO</option>
                 </select>
             </div>
-            <button type="submit" class="btn btn-primary w-100">Guardar Usuario</button>
+            <button type="submit" class="btn btn-primary-custom w-100 py-2">Guardar Usuario</button>
         </form>
       </div>
     </div>
@@ -112,7 +160,6 @@
         modal = new bootstrap.Modal(document.getElementById('usuarioModal'));
     });
 
-    // Variable global para guardar la data cruda y facilitar la edición
     let listaUsuarios = [];
 
     async function cargarUsuarios() {
@@ -120,14 +167,14 @@
         let html = '';
         listaUsuarios.forEach(u => {
             html += `<tr>
-                <td>${u.idUsuario}</td>
+                <td class="fw-bold">${u.idUsuario}</td>
                 <td>${u.nombres} ${u.apellidos}</td>
                 <td>${u.dni}</td>
                 <td>${u.email}</td>
-                <td><span class="badge bg-secondary">${u.rol}</span></td>
+                <td><span class="badge-status badge-programada">${u.rol}</span></td>
                 <td>
-                    <button class="btn btn-warning btn-sm" onclick="abrirModalEditar(${u.idUsuario})">Editar</button>
-                    <button class="btn btn-danger btn-sm" onclick="borrarUsuario(${u.idUsuario})">Eliminar</button>
+                    <button class="btn btn-outline-custom btn-sm py-1 px-2 me-1" onclick="abrirModalEditar(${u.idUsuario})">Editar</button>
+                    <button class="btn btn-danger btn-sm py-1 px-2 rounded-pill" onclick="borrarUsuario(${u.idUsuario})">Eliminar</button>
                 </td>
             </tr>`;
         });
@@ -137,6 +184,7 @@
     function abrirModalCrear() {
         document.getElementById('usuarioForm').reset();
         document.getElementById('u_id').value = '';
+        document.getElementById('u_password').setAttribute('required', 'required');
         document.getElementById('modalTitle').innerText = 'Nuevo Usuario';
         modal.show();
     }
@@ -153,8 +201,8 @@
         document.getElementById('u_telefono').value = user.telefono || '';
         document.getElementById('u_direccion').value = user.direccion || '';
         document.getElementById('u_password').value = ''; 
+        document.getElementById('u_password').removeAttribute('required');
         
-        // Mapeo básico de roles a ID
         const rolesMap = { 'ADMIN': 1, 'CLIENTE': 2, 'RECEPCIONISTA': 3, 'VETERINARIO': 4 };
         document.getElementById('u_rol').value = rolesMap[user.rol];
         
@@ -178,14 +226,13 @@
 
         try {
             if (id) {
-                await api.put('/usuarios/' + id, payload); // Actualizar
+                await api.put('/usuarios/' + id, payload);
             } else {
-                await api.post('/usuarios', payload); // Crear
+                await api.post('/usuarios', payload);
             }
             modal.hide();
             cargarUsuarios();
         } catch(err) {
-            // Error manejado en api.js
         }
     });
 
@@ -200,7 +247,8 @@
         const citas = await api.get('/citas/pendientes');
         let html = '';
         citas.forEach(c => {
-            html += `<tr><td>${c.fecha}</td><td>${c.hora}</td><td>${c.nombreMascota}</td><td>${c.nombreServicio}</td><td><span class="badge bg-primary">${c.estado}</span></td></tr>`;
+            const badgeClass = c.estado === 'ATENDIDA' ? 'badge-atendida' : (c.estado === 'CANCELADA' ? 'badge-cancelada' : 'badge-programada');
+            html += `<tr><td>${c.fecha}</td><td>${c.hora}</td><td class="fw-bold">${c.nombreMascota}</td><td>${c.nombreServicio}</td><td><span class="badge-status ${badgeClass}">${c.estado}</span></td></tr>`;
         });
         document.getElementById('tablaCitas').innerHTML = html;
     }
@@ -209,7 +257,7 @@
         const servicios = await api.get('/servicios');
         let html = '';
         servicios.forEach(s => {
-            html += `<tr><td>${s.idServicio}</td><td>${s.nombre}</td><td>S/ ${s.precio}</td></tr>`;
+            html += `<tr><td>${s.idServicio}</td><td class="fw-bold">${s.nombre}</td><td>S/ ${s.precio}</td></tr>`;
         });
         document.getElementById('tablaServicios').innerHTML = html;
     }

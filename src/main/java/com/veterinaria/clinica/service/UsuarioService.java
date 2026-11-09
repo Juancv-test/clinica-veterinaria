@@ -3,6 +3,7 @@ package com.veterinaria.clinica.service;
 import com.veterinaria.clinica.dao.MascotaDao;
 import com.veterinaria.clinica.dao.RolDao;
 import com.veterinaria.clinica.dao.UsuarioDao;
+import com.veterinaria.clinica.dto.ActualizarPerfilDto;
 import com.veterinaria.clinica.dto.MascotaDto;
 import com.veterinaria.clinica.dto.RegistroClienteDto;
 import com.veterinaria.clinica.dto.UsuarioDto;
@@ -42,6 +43,11 @@ public class UsuarioService {
     
     public List<Usuario> listarPorRol(String rol) {
         return usuarioDao.findAllByRol(rol);
+    }
+
+    public Usuario buscarPorEmail(String email) {
+        return usuarioDao.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con email: " + email));
     }
 
     /**
@@ -136,6 +142,39 @@ public class UsuarioService {
             cambiarRol(idUsuario, dto.idRol());
         }
         
+        return usuarioDao.findById(idUsuario).orElseThrow();
+    }
+
+    @Transactional
+    public Usuario actualizarPerfil(Long idUsuario, ActualizarPerfilDto dto) {
+        Usuario existente = usuarioDao.findById(idUsuario)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+
+        if (!existente.email().equalsIgnoreCase(dto.email()) && usuarioDao.existsByEmail(dto.email())) {
+            throw new DuplicateResourceException("El nuevo correo electrónico ya está registrado");
+        }
+        if (!existente.dni().equals(dto.dni()) && usuarioDao.existsByDni(dto.dni())) {
+            throw new DuplicateResourceException("El nuevo DNI ya está registrado");
+        }
+
+        Usuario actualizado = new Usuario(
+                idUsuario, dto.nombres().trim(), dto.apellidos().trim(), dto.dni().trim(),
+                (dto.telefono() != null && !dto.telefono().isBlank()) ? dto.telefono().trim() : null,
+                (dto.direccion() != null && !dto.direccion().isBlank()) ? dto.direccion().trim() : null,
+                dto.email().trim().toLowerCase(),
+                existente.passwordHash(), existente.idRol(), existente.nombreRol(),
+                existente.activo(), existente.fechaRegistro()
+        );
+
+        usuarioDao.update(actualizado);
+
+        if (dto.nuevaPassword() != null && !dto.nuevaPassword().isBlank()) {
+            if (dto.nuevaPassword().length() < 6) {
+                throw new IllegalArgumentException("La nueva contraseña debe tener al menos 6 caracteres");
+            }
+            usuarioDao.updatePassword(idUsuario, passwordEncoder.encode(dto.nuevaPassword()));
+        }
+
         return usuarioDao.findById(idUsuario).orElseThrow();
     }
 

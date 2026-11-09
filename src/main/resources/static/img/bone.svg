@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 86" width="70" height="50">
+  <g transform="rotate(-12 60 43)">
+    <!-- Huesito estilizado suave con contorno blanco -->
+    <path d="M 28 20 C 20 20 14 26 14 34 C 14 38 16 41 19 43 C 16 45 14 48 14 52 C 14 60 20 66 28 66 C 34 66 39 62 41 57 L 79 57 C 81 62 86 66 92 66 C 100 66 106 60 106 52 C 106 48 104 45 101 43 C 104 41 106 38 106 34 C 106 26 100 20 92 20 C 86 20 81 24 79 29 L 41 29 C 39 24 34 20 28 20 Z" 
+          fill="none" 
+          stroke="#ffffff" 
+          stroke-width="5" 
+          stroke-linecap="round" 
+          stroke-linejoin="round"/>
+  </g>
+</svg>

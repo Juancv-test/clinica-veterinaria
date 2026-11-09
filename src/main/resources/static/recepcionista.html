@@ -1,0 +1,1414 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Veterinaria - Panel de Recepcionista</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,600;0,700;0,800;1,800&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/recepcionista.css" rel="stylesheet">
+</head>
+<body>
+
+<nav class="navbar navbar-panel">
+    <div class="container-fluid">
+        <div class="d-flex align-items-center">
+            <span class="navbar-brand font-brand mb-0 h1">Veterinaria Huesitos</span>
+            <span class="brand-badge ms-2">Recepcion</span>
+        </div>
+        <div class="d-flex align-items-center">
+            <a href="index.html" class="btn btn-outline-custom btn-sm me-3">Inicio</a>
+            <button class="btn btn-emergency-custom btn-sm me-3" onclick="abrirModalEmergenciaExpress()">+ Ingreso de Emergencia Express (Triage)</button>
+            <span class="me-3 fw-bold" id="usuarioNombre">Recepcionista</span>
+            <button class="btn btn-outline-custom btn-sm" onclick="logout()">Cerrar Sesion</button>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <ul class="nav nav-pills nav-pills-custom mb-3" id="pills-tab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="tab-clientes" data-bs-toggle="pill" data-bs-target="#pills-clientes" type="button" role="tab">Clientes y Mascotas</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-citas" data-bs-toggle="pill" data-bs-target="#pills-citas" type="button" role="tab">Gestionar Citas</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-servicios" data-bs-toggle="pill" data-bs-target="#pills-servicios" type="button" role="tab">Servicios Disponibles</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-consultas" data-bs-toggle="pill" data-bs-target="#pills-consultas" type="button" role="tab">Atencion al Cliente</button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="pills-tabContent">
+
+        <!-- ================= PESTANA 1: CLIENTES Y MASCOTAS ================= -->
+        <div class="tab-pane fade show active" id="pills-clientes" role="tabpanel">
+
+            <!-- Alerta / Casos de Emergencia pendientes de regularizacion -->
+            <div id="seccionEmergenciasPendientes" class="card-alerta-emergencia mb-4 d-none">
+                <div class="panel-card-header d-flex justify-content-between align-items-center">
+                    <h6 class="panel-card-title">Pacientes de Emergencia por Regularizar (Atendidos sin registro previo)</h6>
+                    <span class="badge bg-light text-danger fw-bold" id="badgeTotalTemporales">0 pendientes</span>
+                </div>
+                <div class="p-4">
+                    <p class="small text-muted mb-2">
+                        Estas mascotas ingresaron por emergencia critica y ya estan recibiendo atencion medica. Complete los datos de su dueño una vez que se encuentre en recepcion.
+                    </p>
+                    <div class="table-responsive">
+                        <table class="table table-custom table-sm table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>ID Mascota</th>
+                                    <th>Nombre Temporal</th>
+                                    <th>Especie</th>
+                                    <th>Raza</th>
+                                    <th>Sexo</th>
+                                    <th>Estado</th>
+                                    <th>Accion</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaTemporalesPendientes"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-card mb-4">
+                <div class="panel-card-header d-flex justify-content-between align-items-center">
+                    <h5 class="panel-card-title">Registro y Consulta de Clientes</h5>
+                    <div>
+                        <button class="btn btn-primary-custom btn-sm" onclick="abrirModalClienteConMascota()">+ Registrar Cliente con Mascota</button>
+                        <button class="btn btn-primary-custom btn-sm ms-2" onclick="abrirModalAgregarMascota()">+ Agregar Mascota a Cliente</button>
+                    </div>
+                </div>
+                <div class="p-4">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <input type="text" id="filtroClientes" class="form-control" placeholder="Buscar por nombre, apellido o DNI..." onkeyup="filtrarClientes()">
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <button class="btn btn-outline-custom btn-sm" onclick="cargarClientes()">Refrescar</button>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-custom table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nombres y Apellidos</th>
+                                    <th>DNI</th>
+                                    <th>Telefono</th>
+                                    <th>Email</th>
+                                    <th>Direccion</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaClientes"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-card">
+                <div class="panel-card-header d-flex justify-content-between align-items-center">
+                    <h5 class="panel-card-title">Mascotas Registradas</h5>
+                    <button class="btn btn-outline-custom btn-sm" onclick="cargarMascotas()">Refrescar</button>
+                </div>
+                <div class="p-4">
+                    <div class="table-responsive">
+                        <table class="table table-custom table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nombre</th>
+                                    <th>Especie</th>
+                                    <th>Raza</th>
+                                    <th>Sexo</th>
+                                    <th>Peso (kg)</th>
+                                    <th>Dueño (Cliente)</th>
+                                    <th>Condicion</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaMascotas"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= PESTANA 2: GESTIONAR CITAS ================= -->
+        <div class="tab-pane fade" id="pills-citas" role="tabpanel">
+            <div class="panel-card mb-4">
+                <div class="panel-card-header d-flex justify-content-between align-items-center">
+                    <h5 class="panel-card-title">Agenda de Citas Veterinarias</h5>
+                    <div>
+                        <button class="btn btn-emergency-custom btn-sm" onclick="abrirModalEmergenciaExpress()">+ Emergencia Express</button>
+                        <button class="btn btn-primary-custom btn-sm ms-2" onclick="abrirModalProgramarCita()">+ Programar Cita</button>
+                        <button class="btn btn-outline-custom btn-sm ms-2" onclick="verColaCitas()">Ver Cola en Espera</button>
+                    </div>
+                </div>
+                <div class="p-4">
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <label class="form-label small">Filtrar por Fecha:</label>
+                            <input type="date" id="filtroFechaCita" class="form-control form-control-sm" onchange="cargarCitas()">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small">Filtrar por Estado:</label>
+                            <select id="filtroEstadoCita" class="form-select form-select-sm" onchange="cargarCitas()">
+                                <option value="">Todos</option>
+                                <option value="PROGRAMADA">PROGRAMADA</option>
+                                <option value="ATENDIDA">ATENDIDA</option>
+                                <option value="CANCELADA">CANCELADA</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 text-end align-self-end">
+                            <button class="btn btn-outline-custom btn-sm" onclick="cargarCitas()">Refrescar Citas</button>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-custom table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Fecha</th>
+                                    <th>Hora</th>
+                                    <th>Mascota</th>
+                                    <th>Servicio</th>
+                                    <th>Veterinario</th>
+                                    <th>Prioridad</th>
+                                    <th>Contacto</th>
+                                    <th>Estado</th>
+                                    <th>Motivo</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaCitas"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cola FIFO / Deque -->
+            <div id="seccionCola" class="panel-card d-none mb-4">
+                <div class="panel-card-header d-flex justify-content-between align-items-center">
+                    <h6 class="panel-card-title">Cola de Citas Pendientes (Estructura de Datos Deque)</h6>
+                    <button type="button" class="btn-close" onclick="document.getElementById('seccionCola').classList.add('d-none')"></button>
+                </div>
+                <div class="p-4">
+                    <p class="text-muted small">Las citas de emergencia tienen prioridad y se ordenan al inicio de la atencion.</p>
+                    <table class="table table-custom table-sm">
+                        <thead>
+                            <tr>
+                                <th>Posicion</th>
+                                <th>Prioridad</th>
+                                <th>Fecha</th>
+                                <th>Hora</th>
+                                <th>Mascota</th>
+                                <th>Servicio</th>
+                                <th>Contacto</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaColaCitas"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= PESTANA 3: SERVICIOS DISPONIBLES ================= -->
+        <div class="tab-pane fade" id="pills-servicios" role="tabpanel">
+            <div class="panel-card">
+                <div class="panel-card-header d-flex justify-content-between align-items-center">
+                    <h5 class="panel-card-title">Catalogo de Servicios de la Veterinaria</h5>
+                    <button class="btn btn-outline-custom btn-sm" onclick="cargarServicios()">Refrescar</button>
+                </div>
+                <div class="p-4">
+                    <div class="table-responsive">
+                        <table class="table table-custom table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nombre del Servicio</th>
+                                    <th>Descripcion</th>
+                                    <th>Duracion Estimada</th>
+                                    <th>Precio (S/)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaServicios"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= PESTANA 4: ATENCION AL CLIENTE ================= -->
+        <div class="tab-pane fade" id="pills-consultas" role="tabpanel">
+            <div class="panel-card">
+                <div class="panel-card-header d-flex justify-content-between align-items-center">
+                    <h5 class="panel-card-title">Consultas de Atencion al Cliente</h5>
+                    <div>
+                        <select id="filtroEstadoConsulta" class="form-select form-select-sm d-inline-block w-auto" onchange="cargarConsultas()">
+                            <option value="">Todas las consultas</option>
+                            <option value="PENDIENTE">PENDIENTE</option>
+                            <option value="RESPONDIDA">RESPONDIDA</option>
+                        </select>
+                        <button class="btn btn-outline-custom btn-sm ms-2" onclick="cargarConsultas()">Refrescar</button>
+                    </div>
+                </div>
+                <div class="p-4">
+                    <div class="table-responsive">
+                        <table class="table table-custom table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Fecha</th>
+                                    <th>Cliente</th>
+                                    <th>Asunto</th>
+                                    <th>Mensaje del Cliente</th>
+                                    <th>Estado</th>
+                                    <th>Respuesta Entregada</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaConsultas"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ================= MODAL: INGRESO DE EMERGENCIA EXPRESS (TRIAGE RAPIDO) ================= -->
+<div class="modal fade" id="modalEmergenciaExpress" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content modal-content-custom">
+            <div class="modal-header-custom">
+                <h5 class="modal-title fw-bold">Triage de Emergencia Express (Atencion Inmediata)</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="small text-muted mb-3">
+                    Ingrese solo los datos esenciales para estabilizar al paciente de inmediato. Los datos formales del dueño se registraran despues.
+                </p>
+                <form id="formEmergenciaExpress">
+                    <div class="row g-2 mb-2">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Especie *</label>
+                            <select id="em_exp_especie" class="form-select" required>
+                                <option value="Perro">Perro (Canino)</option>
+                                <option value="Gato">Gato (Felino)</option>
+                                <option value="Otro">Otro</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Sexo</label>
+                            <select id="em_exp_sexo" class="form-select">
+                                <option value="M">Macho</option>
+                                <option value="H">Hembra</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small fw-bold">Nombre o Referencia Temporal</label>
+                        <input type="text" id="em_exp_nombre" class="form-control" placeholder="Ej: Canino mestizo atropellado, o nombre si lo sabe">
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small fw-bold">Motivo Urgente / Sintomas Criticos *</label>
+                        <textarea id="em_exp_motivo" class="form-control" rows="2" placeholder="Ej: Atropello en Av Principal, hemorragia, convulsion..." required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Contacto Rapido (Nombre y/o Celular)</label>
+                        <input type="text" id="em_exp_contacto" class="form-control" placeholder="Ej: Vecino Carlos 987654321 (quien lo trajo)">
+                    </div>
+                    <div class="text-end">
+                        <button type="button" class="btn btn-outline-custom" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-emergency-custom fw-bold ms-2">Ingresar a Urgencias Ya</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ================= MODAL: REGULARIZAR PACIENTE DE EMERGENCIA ================= -->
+<div class="modal fade" id="modalRegularizarPaciente" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content modal-content-custom">
+            <div class="modal-header-custom">
+                <h5 class="modal-title">Regularizar Paciente Atendido por Emergencia</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formRegularizarPaciente">
+                    <input type="hidden" id="reg_id_mascota">
+
+                    <div class="alert alert-info py-2 small mb-3">
+                        Asocie esta mascota a su dueño definitivo para que conserve todo el historial medico y atenciones registradas durante la urgencia.
+                    </div>
+
+                    <h6 class="fw-bold mb-2" style="color: var(--color-primario);">Datos Definitivos de la Mascota</h6>
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label small">Nombre Real de la Mascota *</label>
+                            <input type="text" id="reg_nombre" class="form-control" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small">Raza</label>
+                            <input type="text" id="reg_raza" class="form-control">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small">Sexo *</label>
+                            <select id="reg_sexo" class="form-select" required>
+                                <option value="M">Macho</option>
+                                <option value="H">Hembra</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small">Fecha Nacimiento</label>
+                            <input type="date" id="reg_fecha" class="form-control">
+                        </div>
+                    </div>
+
+                    <h6 class="fw-bold mb-2" style="color: var(--color-primario);">Asignacion del Dueño (Cliente)</h6>
+                    <div class="mb-3">
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="tipoClienteRadio" id="radioExistente" value="EXISTENTE" checked onchange="toggleTipoCliente()">
+                            <label class="form-check-label" for="radioExistente">Cliente ya registrado en el sistema</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="tipoClienteRadio" id="radioNuevo" value="NUEVO" onchange="toggleTipoCliente()">
+                            <label class="form-check-label" for="radioNuevo">Registrar nuevo cliente ahora</label>
+                        </div>
+                    </div>
+
+                    <!-- Seccion Cliente Existente -->
+                    <div id="seccionClienteExistente" class="mb-3">
+                        <label class="form-label small fw-bold">Seleccionar Cliente Registrado *</label>
+                        <select id="reg_cliente_existente" class="form-select"></select>
+                    </div>
+
+                    <!-- Seccion Nuevo Cliente -->
+                    <div id="seccionNuevoCliente" class="d-none border p-3 rounded mb-3" style="background: var(--color-primario-light);">
+                        <div class="row g-2 mb-2">
+                            <div class="col-md-6">
+                                <label class="form-label small">Nombres *</label>
+                                <input type="text" id="reg_cli_nombres" class="form-control">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small">Apellidos *</label>
+                                <input type="text" id="reg_cli_apellidos" class="form-control">
+                            </div>
+                        </div>
+                        <div class="row g-2 mb-2">
+                            <div class="col-md-4">
+                                <label class="form-label small">DNI (8 dígitos) *</label>
+                                <input type="text" id="reg_cli_dni" class="form-control" maxlength="8" pattern="\d{8}" inputmode="numeric" oninput="this.value = this.value.replace(/\D/g, '').slice(0, 8)">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small">Celular / Teléfono</label>
+                                <input type="tel" id="reg_cli_telefono" class="form-control" maxlength="9" pattern="\d{9}" inputmode="numeric" placeholder="Ej: 919430986" oninput="this.value = this.value.replace(/\D/g, '').slice(0, 9)">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small">Email *</label>
+                                <input type="email" id="reg_cli_email" class="form-control">
+                            </div>
+                        </div>
+                        <div class="row g-2">
+                            <div class="col-md-8">
+                                <label class="form-label small">Direccion</label>
+                                <input type="text" id="reg_cli_direccion" class="form-control">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small">Contrasena de Acceso *</label>
+                                <input type="password" id="reg_cli_password" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-end">
+                        <button type="button" class="btn btn-outline-custom" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary-custom ms-2">Guardar y Regularizar Paciente</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ================= MODAL: REGISTRAR CLIENTE CON MASCOTA ================= -->
+<div class="modal fade" id="modalClienteConMascota" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content modal-content-custom">
+            <div class="modal-header-custom">
+                <h5 class="modal-title">Registrar Nuevo Cliente con Mascota</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formClienteMascota">
+                    <h6 class="fw-bold mb-3" style="color: var(--color-primario);">Datos del Cliente (Dueño)</h6>
+                    <div class="row g-2 mb-2">
+                        <div class="col-md-6">
+                            <label class="form-label small">Nombres *</label>
+                            <input type="text" id="cm_nombres" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small">Apellidos *</label>
+                            <input type="text" id="cm_apellidos" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="row g-2 mb-2">
+                        <div class="col-md-4">
+                            <label class="form-label small">DNI (8 dígitos) *</label>
+                            <input type="text" id="cm_dni" class="form-control" maxlength="8" pattern="\d{8}" inputmode="numeric" oninput="this.value = this.value.replace(/\D/g, '').slice(0, 8)" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small">Celular / Teléfono</label>
+                            <input type="tel" id="cm_telefono" class="form-control" maxlength="9" pattern="\d{9}" inputmode="numeric" placeholder="Ej: 919430986" oninput="this.value = this.value.replace(/\D/g, '').slice(0, 9)">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small">Email *</label>
+                            <input type="email" id="cm_email" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-8">
+                            <label class="form-label small">Direccion</label>
+                            <input type="text" id="cm_direccion" class="form-control">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small">Contrasena de Acceso *</label>
+                            <input type="password" id="cm_password" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <h6 class="fw-bold mb-3" style="color: var(--color-primario);">Datos de la Mascota</h6>
+                    <div class="row g-2 mb-2">
+                        <div class="col-md-4">
+                            <label class="form-label small">Nombre de la Mascota *</label>
+                            <input type="text" id="cm_mascota_nombre" class="form-control" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small">Especie (ej: Perro, Gato) *</label>
+                            <input type="text" id="cm_mascota_especie" class="form-control" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small">Raza</label>
+                            <input type="text" id="cm_mascota_raza" class="form-control">
+                        </div>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label small">Sexo *</label>
+                            <select id="cm_mascota_sexo" class="form-select" required>
+                                <option value="M">Macho (M)</option>
+                                <option value="H">Hembra (H)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small">Fecha de Nacimiento</label>
+                            <input type="date" id="cm_mascota_fecha" class="form-control">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small">Peso (kg)</label>
+                            <input type="number" step="0.1" id="cm_mascota_peso" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="text-end">
+                        <button type="button" class="btn btn-outline-custom" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary-custom ms-2">Registrar Cliente y Mascota</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ================= MODAL: AGREGAR MASCOTA A CLIENTE EXISTENTE ================= -->
+<div class="modal fade" id="modalAgregarMascota" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content modal-content-custom">
+            <div class="modal-header-custom">
+                <h5 class="modal-title">Agregar Mascota a Cliente</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formNuevaMascota">
+                    <div class="mb-3">
+                        <label class="form-label small">Seleccionar Cliente Dueño *</label>
+                        <select id="m_cliente" class="form-select" required></select>
+                    </div>
+                    <div class="row g-2 mb-2">
+                        <div class="col-md-6">
+                            <label class="form-label small">Nombre de la Mascota *</label>
+                            <input type="text" id="m_nombre" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small">Especie *</label>
+                            <input type="text" id="m_especie" class="form-control" placeholder="Perro, Gato, etc." required>
+                        </div>
+                    </div>
+                    <div class="row g-2 mb-2">
+                        <div class="col-md-6">
+                            <label class="form-label small">Raza</label>
+                            <input type="text" id="m_raza" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small">Sexo *</label>
+                            <select id="m_sexo" class="form-select" required>
+                                <option value="M">Macho (M)</option>
+                                <option value="H">Hembra (H)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label small">Fecha de Nacimiento</label>
+                            <input type="date" id="m_fecha" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small">Peso (kg)</label>
+                            <input type="number" step="0.1" id="m_peso" class="form-control">
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <button type="button" class="btn btn-outline-custom" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary-custom ms-2">Guardar Mascota</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ================= MODAL: PROGRAMAR CITA ================= -->
+<div class="modal fade" id="modalProgramarCita" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content modal-content-custom">
+            <div class="modal-header-custom">
+                <h5 class="modal-title">Programar Cita Veterinaria</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formProgramarCita">
+                    <div class="mb-3">
+                        <label class="form-label small">Mascota *</label>
+                        <select id="cita_mascota" class="form-select" required></select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small">Servicio *</label>
+                        <select id="cita_servicio" class="form-select" required></select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small">Veterinario (Opcional)</label>
+                        <select id="cita_veterinario" class="form-select">
+                            <option value="">Por asignar / Sin preferencia</option>
+                        </select>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label small">Fecha *</label>
+                            <input type="date" id="cita_fecha" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small">Hora *</label>
+                            <input type="time" id="cita_hora" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small">Motivo de la Cita</label>
+                        <textarea id="cita_motivo" class="form-control" rows="2" placeholder="Sintomas, motivo o revision requerida..."></textarea>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="cita_es_emergencia">
+                        <label class="form-check-label fw-bold text-danger" for="cita_es_emergencia">
+                            Marcar como Cita de Emergencia (Prioridad al inicio de la cola)
+                        </label>
+                    </div>
+                    <div class="text-end">
+                        <button type="button" class="btn btn-outline-custom" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary-custom ms-2">Programar Cita</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ================= MODAL: REPROGRAMAR CITA ================= -->
+<div class="modal fade" id="modalReprogramarCita" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content modal-content-custom">
+            <div class="modal-header-custom">
+                <h5 class="modal-title">Modificar / Reprogramar Cita</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formReprogramarCita">
+                    <input type="hidden" id="reprog_id">
+                    <input type="hidden" id="reprog_mascota_id">
+                    <input type="hidden" id="reprog_servicio_id">
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label small">Nueva Fecha *</label>
+                            <input type="date" id="reprog_fecha" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small">Nueva Hora *</label>
+                            <input type="time" id="reprog_hora" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small">Veterinario</label>
+                        <select id="reprog_veterinario" class="form-select">
+                            <option value="">Sin preferencia</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small">Motivo</label>
+                        <textarea id="reprog_motivo" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="text-end">
+                        <button type="button" class="btn btn-outline-custom" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary-custom ms-2">Guardar Cambios</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ================= MODAL: RESPONDER CONSULTA DE CLIENTE ================= -->
+<div class="modal fade" id="modalResponderConsulta" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content modal-content-custom">
+            <div class="modal-header-custom">
+                <h5 class="modal-title">Atencion al Cliente - Responder Consulta</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="resp_id_consulta">
+                <div class="mb-2">
+                    <label class="form-label small fw-bold">Cliente:</label>
+                    <div id="resp_cliente_info" class="p-2 rounded small" style="background: var(--color-primario-light);"></div>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label small fw-bold">Asunto:</label>
+                    <div id="resp_asunto" class="p-2 rounded small" style="background: var(--color-primario-light);"></div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold">Mensaje / Pregunta:</label>
+                    <div id="resp_mensaje" class="p-2 rounded small" style="background: var(--color-primario-light);"></div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold">Escribir Respuesta *</label>
+                    <textarea id="resp_texto" class="form-control" rows="4" placeholder="Ingrese la respuesta clara sobre horarios, servicios o citas..." required></textarea>
+                </div>
+                <div class="text-end">
+                    <button type="button" class="btn btn-outline-custom" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary-custom ms-2" onclick="enviarRespuestaConsulta()">Enviar Respuesta</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/api.js"></script>
+<script>
+    const token = localStorage.getItem('token');
+    const rol = localStorage.getItem('rol');
+    if (!token || (rol !== 'RECEPCIONISTA' && rol !== 'ADMIN')) {
+        window.location.href = 'index.html';
+    }
+
+    document.getElementById('usuarioNombre').innerText = (localStorage.getItem('nombre') || 'Recepcionista') + ' (' + rol + ')';
+
+    let clientesGlobal = [];
+    let mascotasGlobal = [];
+    let temporalesGlobal = [];
+    let serviciosGlobal = [];
+    let veterinariosGlobal = [];
+    let citasGlobal = [];
+    let consultasGlobal = [];
+
+    let modalClienteMascotaInst, modalAgregarMascotaInst, modalProgramarCitaInst, modalReprogramarInst, modalResponderInst;
+    let modalEmergenciaExpInst, modalRegularizarInst;
+
+    document.addEventListener("DOMContentLoaded", () => {
+        modalClienteMascotaInst = new bootstrap.Modal(document.getElementById('modalClienteConMascota'));
+        modalAgregarMascotaInst = new bootstrap.Modal(document.getElementById('modalAgregarMascota'));
+        modalProgramarCitaInst = new bootstrap.Modal(document.getElementById('modalProgramarCita'));
+        modalReprogramarInst = new bootstrap.Modal(document.getElementById('modalReprogramarCita'));
+        modalResponderInst = new bootstrap.Modal(document.getElementById('modalResponderConsulta'));
+        modalEmergenciaExpInst = new bootstrap.Modal(document.getElementById('modalEmergenciaExpress'));
+        modalRegularizarInst = new bootstrap.Modal(document.getElementById('modalRegularizarPaciente'));
+
+        cargarClientes();
+        cargarMascotas();
+        cargarTemporalesPendientes();
+        cargarServicios();
+        cargarVeterinarios();
+        cargarCitas();
+        cargarConsultas();
+
+        // Recargar consultas automaticamente al hacer clic en la pestaña
+        const tabConsultasBtn = document.getElementById('tab-consultas');
+        if (tabConsultasBtn) {
+            tabConsultasBtn.addEventListener('shown.bs.tab', () => {
+                cargarConsultas();
+            });
+        }
+    });
+
+    // ================= CLIENTES Y MASCOTAS =================
+    async function cargarClientes() {
+        try {
+            const data = await api.get('/usuarios?rol=CLIENTE');
+            clientesGlobal = data || [];
+            renderizarClientes(clientesGlobal);
+            actualizarSelectClientes();
+        } catch(e) {
+            console.error(e);
+        }
+    }
+
+    function renderizarClientes(lista) {
+        let html = '';
+        if (lista.length === 0) {
+            html = '<tr><td colspan="7" class="text-center text-muted">No hay clientes registrados</td></tr>';
+        } else {
+            lista.forEach(c => {
+                html += `<tr>
+                    <td>${c.idUsuario}</td>
+                    <td>${c.nombres} ${c.apellidos}</td>
+                    <td>${c.dni}</td>
+                    <td>${c.telefono || '-'}</td>
+                    <td>${c.email}</td>
+                    <td>${c.direccion || '-'}</td>
+                    <td>
+                        <button class="btn btn-primary-custom btn-sm" onclick="abrirAgregarMascotaDirecto(${c.idUsuario})">+ Mascota</button>
+                    </td>
+                </tr>`;
+            });
+        }
+        document.getElementById('tablaClientes').innerHTML = html;
+    }
+
+    function filtrarClientes() {
+        const query = document.getElementById('filtroClientes').value.toLowerCase().trim();
+        const filtrados = clientesGlobal.filter(c =>
+            c.nombres.toLowerCase().includes(query) ||
+            c.apellidos.toLowerCase().includes(query) ||
+            c.dni.includes(query) ||
+            c.email.toLowerCase().includes(query)
+        );
+        renderizarClientes(filtrados);
+    }
+
+    async function cargarMascotas() {
+        try {
+            const data = await api.get('/mascotas');
+            mascotasGlobal = data || [];
+            renderizarMascotas(mascotasGlobal);
+            actualizarSelectMascotas();
+        } catch(e) {
+            console.error(e);
+        }
+    }
+
+    function renderizarMascotas(lista) {
+        let html = '';
+        if (lista.length === 0) {
+            html = '<tr><td colspan="9" class="text-center text-muted">No hay mascotas registradas</td></tr>';
+        } else {
+            lista.forEach(m => {
+                const esTemp = m.esTemporal;
+                const condicionBadge = esTemp
+                    ? '<span class="badge-status badge-status-cancelada">TEMPORAL (URGENCIA)</span>'
+                    : '<span class="badge-status badge-status-atendida">REGISTRADO</span>';
+
+                let accion = '';
+                if (esTemp) {
+                    accion = `<button class="btn btn-emergency-custom btn-sm" onclick="abrirModalRegularizar(${m.idMascota})">Regularizar Dueño</button>`;
+                } else {
+                    accion = `<button class="btn btn-outline-custom btn-sm" onclick="programarCitaParaMascota(${m.idMascota})">Cita</button>`;
+                }
+
+                html += `<tr class="${esTemp ? 'table-warning' : ''}">
+                    <td>${m.idMascota}</td>
+                    <td><strong>${m.nombre}</strong></td>
+                    <td>${m.especie}</td>
+                    <td>${m.raza || '-'}</td>
+                    <td>${m.sexo === 'M' ? 'Macho' : 'Hembra'}</td>
+                    <td>${m.pesoKg ? m.pesoKg + ' kg' : '-'}</td>
+                    <td>${m.nombreCliente || '<em class="text-danger">Pendiente de registro</em>'}</td>
+                    <td>${condicionBadge}</td>
+                    <td>${accion}</td>
+                </tr>`;
+            });
+        }
+        document.getElementById('tablaMascotas').innerHTML = html;
+    }
+
+    // ================= CASOS DE EMERGENCIA POR REGULARIZAR =================
+    async function cargarTemporalesPendientes() {
+        try {
+            const data = await api.get('/emergencias/pendientes-regularizar');
+            temporalesGlobal = data || [];
+            const cont = document.getElementById('seccionEmergenciasPendientes');
+            const badge = document.getElementById('badgeTotalTemporales');
+            const tbody = document.getElementById('tablaTemporalesPendientes');
+
+            if (!temporalesGlobal || temporalesGlobal.length === 0) {
+                cont.classList.add('d-none');
+            } else {
+                cont.classList.remove('d-none');
+                badge.innerText = temporalesGlobal.length + ' pendientes';
+                let html = '';
+                temporalesGlobal.forEach(m => {
+                    html += `<tr>
+                        <td><strong>#${m.idMascota}</strong></td>
+                        <td>${m.nombre}</td>
+                        <td>${m.especie}</td>
+                        <td>${m.raza || 'No indicada'}</td>
+                        <td>${m.sexo === 'M' ? 'Macho' : 'Hembra'}</td>
+                        <td><span class="badge-status badge-status-cancelada">Sin Dueño Registrado</span></td>
+                        <td>
+                            <button class="btn btn-primary-custom btn-sm" onclick="abrirModalRegularizar(${m.idMascota})">Regularizar Dueño</button>
+                        </td>
+                    </tr>`;
+                });
+                tbody.innerHTML = html;
+            }
+        } catch(e) {
+            console.error(e);
+        }
+    }
+
+    function abrirModalEmergenciaExpress() {
+        document.getElementById('formEmergenciaExpress').reset();
+        modalEmergenciaExpInst.show();
+    }
+
+    document.getElementById('formEmergenciaExpress').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const payload = {
+            especie: document.getElementById('em_exp_especie').value,
+            sexo: document.getElementById('em_exp_sexo').value,
+            nombreTemporal: document.getElementById('em_exp_nombre').value.trim(),
+            motivoUrgencia: document.getElementById('em_exp_motivo').value.trim(),
+            contactoEmergencia: document.getElementById('em_exp_contacto').value.trim()
+        };
+
+        try {
+            const citaCreada = await api.post('/emergencias/ingreso-express', payload);
+            alert('Paciente ingresado de inmediato a urgencias y situado al frente de la cola de atencion.');
+            modalEmergenciaExpInst.hide();
+            cargarMascotas();
+            cargarTemporalesPendientes();
+            cargarCitas();
+        } catch(err) {
+            // Manejado en api.js
+        }
+    });
+
+    function abrirModalRegularizar(idMascota) {
+        const pet = mascotasGlobal.find(m => m.idMascota === idMascota) || temporalesGlobal.find(m => m.idMascota === idMascota);
+        if (!pet) return;
+
+        document.getElementById('formRegularizarPaciente').reset();
+        document.getElementById('reg_id_mascota').value = pet.idMascota;
+        document.getElementById('reg_nombre').value = pet.nombre.replace('Paciente Urgente NN', '');
+        document.getElementById('reg_raza').value = pet.raza !== 'No especificada' ? pet.raza : '';
+        document.getElementById('reg_sexo').value = pet.sexo || 'M';
+
+        document.getElementById('radioExistente').checked = true;
+        toggleTipoCliente();
+
+        modalRegularizarInst.show();
+    }
+
+    function toggleTipoCliente() {
+        const esExistente = document.getElementById('radioExistente').checked;
+        if (esExistente) {
+            document.getElementById('seccionClienteExistente').classList.remove('d-none');
+            document.getElementById('seccionNuevoCliente').classList.add('d-none');
+        } else {
+            document.getElementById('seccionClienteExistente').classList.add('d-none');
+            document.getElementById('seccionNuevoCliente').classList.remove('d-none');
+        }
+    }
+
+    document.getElementById('formRegularizarPaciente').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const idMascota = parseInt(document.getElementById('reg_id_mascota').value);
+        const esExistente = document.getElementById('radioExistente').checked;
+
+        let payload = {
+            idMascota: idMascota,
+            nombreDefinitivo: document.getElementById('reg_nombre').value.trim(),
+            raza: document.getElementById('reg_raza').value.trim(),
+            sexo: document.getElementById('reg_sexo').value,
+            fechaNacimiento: document.getElementById('reg_fecha').value || null
+        };
+
+        if (esExistente) {
+            const idCli = document.getElementById('reg_cliente_existente').value;
+            if (!idCli) {
+                alert('Seleccione un cliente registrado.');
+                return;
+            }
+            payload.idClienteExistente = parseInt(idCli);
+        } else {
+            payload.nuevoCliente = {
+                nombres: document.getElementById('reg_cli_nombres').value.trim(),
+                apellidos: document.getElementById('reg_cli_apellidos').value.trim(),
+                dni: document.getElementById('reg_cli_dni').value.trim(),
+                telefono: document.getElementById('reg_cli_telefono').value.trim(),
+                email: document.getElementById('reg_cli_email').value.trim(),
+                direccion: document.getElementById('reg_cli_direccion').value.trim(),
+                password: document.getElementById('reg_cli_password').value
+            };
+        }
+
+        try {
+            await api.post('/emergencias/regularizar', payload);
+            alert('Paciente regularizado exitosamente. Ahora esta formalmente vinculado a su dueño.');
+            modalRegularizarInst.hide();
+            cargarClientes();
+            cargarMascotas();
+            cargarTemporalesPendientes();
+            cargarCitas();
+        } catch(err) {
+            // Manejado en api.js
+        }
+    });
+
+    function actualizarSelectClientes() {
+        const sel = document.getElementById('m_cliente');
+        const selReg = document.getElementById('reg_cliente_existente');
+        sel.innerHTML = '<option value="">Seleccione un cliente...</option>';
+        selReg.innerHTML = '<option value="">Seleccione un cliente...</option>';
+
+        clientesGlobal.forEach(c => {
+            const opt = `<option value="${c.idUsuario}">${c.nombres} ${c.apellidos} (DNI: ${c.dni})</option>`;
+            sel.innerHTML += opt;
+            selReg.innerHTML += opt;
+        });
+    }
+
+    function actualizarSelectMascotas() {
+        const sel = document.getElementById('cita_mascota');
+        sel.innerHTML = '<option value="">Seleccione una mascota...</option>';
+        mascotasGlobal.forEach(m => {
+            sel.innerHTML += `<option value="${m.idMascota}">${m.nombre} (${m.especie}) - Dueño: ${m.nombreCliente || m.idCliente || 'Temporal'}</option>`;
+        });
+    }
+
+    function abrirModalClienteConMascota() {
+        document.getElementById('formClienteMascota').reset();
+        modalClienteMascotaInst.show();
+    }
+
+    document.getElementById('formClienteMascota').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const payload = {
+            cliente: {
+                nombres: document.getElementById('cm_nombres').value.trim(),
+                apellidos: document.getElementById('cm_apellidos').value.trim(),
+                dni: document.getElementById('cm_dni').value.trim(),
+                telefono: document.getElementById('cm_telefono').value.trim(),
+                direccion: document.getElementById('cm_direccion').value.trim(),
+                email: document.getElementById('cm_email').value.trim(),
+                password: document.getElementById('cm_password').value
+            },
+            mascota: {
+                nombre: document.getElementById('cm_mascota_nombre').value.trim(),
+                especie: document.getElementById('cm_mascota_especie').value.trim(),
+                raza: document.getElementById('cm_mascota_raza').value.trim(),
+                sexo: document.getElementById('cm_mascota_sexo').value,
+                fechaNacimiento: document.getElementById('cm_mascota_fecha').value || null,
+                pesoKg: document.getElementById('cm_mascota_peso').value ? parseFloat(document.getElementById('cm_mascota_peso').value) : null
+            }
+        };
+
+        try {
+            await api.post('/usuarios/cliente-con-mascota', payload);
+            alert('Cliente y mascota registrados con exito.');
+            modalClienteMascotaInst.hide();
+            cargarClientes();
+            cargarMascotas();
+        } catch(err) {
+            // Manejado en api.js
+        }
+    });
+
+    function abrirModalAgregarMascota() {
+        document.getElementById('formNuevaMascota').reset();
+        modalAgregarMascotaInst.show();
+    }
+
+    function abrirAgregarMascotaDirecto(idCliente) {
+        document.getElementById('formNuevaMascota').reset();
+        document.getElementById('m_cliente').value = idCliente;
+        modalAgregarMascotaInst.show();
+    }
+
+    document.getElementById('formNuevaMascota').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const payload = {
+            idCliente: parseInt(document.getElementById('m_cliente').value),
+            nombre: document.getElementById('m_nombre').value.trim(),
+            especie: document.getElementById('m_especie').value.trim(),
+            raza: document.getElementById('m_raza').value.trim(),
+            sexo: document.getElementById('m_sexo').value,
+            fechaNacimiento: document.getElementById('m_fecha').value || null,
+            pesoKg: document.getElementById('m_peso').value ? parseFloat(document.getElementById('m_peso').value) : null
+        };
+
+        try {
+            await api.post('/mascotas', payload);
+            alert('Mascota agregada con exito.');
+            modalAgregarMascotaInst.hide();
+            cargarMascotas();
+        } catch(err) {
+            // Manejado en api.js
+        }
+    });
+
+    // ================= SERVICIOS Y VETERINARIOS =================
+    async function cargarServicios() {
+        try {
+            const data = await api.get('/servicios');
+            serviciosGlobal = data || [];
+            let html = '';
+            const sel = document.getElementById('cita_servicio');
+            sel.innerHTML = '<option value="">Seleccione servicio...</option>';
+
+            serviciosGlobal.forEach(s => {
+                html += `<tr>
+                    <td>${s.idServicio}</td>
+                    <td><strong>${s.nombre}</strong></td>
+                    <td>${s.descripcion || '-'}</td>
+                    <td>${s.duracionMin ? s.duracionMin + ' min' : '-'}</td>
+                    <td><strong>S/ ${parseFloat(s.precio).toFixed(2)}</strong></td>
+                </tr>`;
+                sel.innerHTML += `<option value="${s.idServicio}">${s.nombre} - S/ ${parseFloat(s.precio).toFixed(2)}</option>`;
+            });
+            document.getElementById('tablaServicios').innerHTML = html;
+        } catch(e) {
+            console.error(e);
+        }
+    }
+
+    async function cargarVeterinarios() {
+        try {
+            const data = await api.get('/usuarios?rol=VETERINARIO');
+            veterinariosGlobal = data || [];
+            const sel1 = document.getElementById('cita_veterinario');
+            const sel2 = document.getElementById('reprog_veterinario');
+            sel1.innerHTML = '<option value="">Por asignar / Sin preferencia</option>';
+            sel2.innerHTML = '<option value="">Sin preferencia</option>';
+
+            veterinariosGlobal.forEach(v => {
+                const opt = `<option value="${v.idUsuario}">${v.nombres} ${v.apellidos}</option>`;
+                sel1.innerHTML += opt;
+                sel2.innerHTML += opt;
+            });
+        } catch(e) {
+            console.error(e);
+        }
+    }
+
+    // ================= GESTION DE CITAS =================
+    async function cargarCitas() {
+        try {
+            const fecha = document.getElementById('filtroFechaCita').value;
+            const estado = document.getElementById('filtroEstadoCita').value;
+            let url = '/citas?';
+            if (fecha) url += 'fecha=' + fecha + '&';
+            if (estado) url += 'estado=' + estado + '&';
+
+            const data = await api.get(url);
+            citasGlobal = data || [];
+            renderizarCitas(citasGlobal);
+        } catch(e) {
+            console.error(e);
+        }
+    }
+
+    function renderizarCitas(lista) {
+        let html = '';
+        if (lista.length === 0) {
+            html = '<tr><td colspan="11" class="text-center text-muted">No hay citas encontradas</td></tr>';
+        } else {
+            lista.forEach(c => {
+                const estadoBadge = c.estado === 'PROGRAMADA' ? 'badge-status-programada' : (c.estado === 'ATENDIDA' ? 'badge-status-atendida' : 'badge-status-cancelada');
+                const prioridadBadge = c.esEmergencia ? '<span class="badge-status badge-prioridad-alta">EMERGENCIA</span>' : '<span class="badge-status badge-prioridad-baja">REGULAR</span>';
+
+                let acciones = '-';
+                if (c.estado === 'PROGRAMADA') {
+                    acciones = `
+                        <button class="btn btn-outline-custom btn-sm" onclick="abrirReprogramar(${c.idCita})">Reprogramar</button>
+                        <button class="btn btn-emergency-custom btn-sm ms-1" onclick="cancelarCita(${c.idCita})">Cancelar</button>
+                    `;
+                }
+
+                let vetCell = '';
+                if (c.estado === 'PROGRAMADA') {
+                    let vetOptions = '<option value="">-- Sin asignar --</option>';
+                    veterinariosGlobal.forEach(v => {
+                        const sel = (c.idVeterinario && Number(c.idVeterinario) === Number(v.idUsuario)) ? 'selected' : '';
+                        vetOptions += `<option value="${v.idUsuario}" ${sel}>${escapeHtml(v.nombres)} ${escapeHtml(v.apellidos)}</option>`;
+                    });
+
+                    const estiloSelect = c.idVeterinario
+                        ? 'border: 1.5px solid #2a9d8f; background-color: #f0fdf4; color: #1e3d37; font-weight: 600;'
+                        : 'border: 1.5px solid #d90429; background-color: #fff5f5; color: #d90429; font-weight: bold;';
+
+                    vetCell = `
+                        <select class="form-select form-select-sm" 
+                                style="min-width: 165px; font-size: 0.82rem; border-radius: 8px; ${estiloSelect}"
+                                onchange="asignarVeterinarioDirecto(${c.idCita}, this.value)"
+                                title="Asignar veterinario directamente a esta cita">
+                            ${vetOptions}
+                        </select>
+                    `;
+                } else {
+                    vetCell = c.nombreVeterinario || '<span class="text-muted">No asignado</span>';
+                }
+
+                html += `<tr class="${c.esEmergencia && c.estado === 'PROGRAMADA' ? 'table-danger' : ''}">
+                    <td>${c.idCita}</td>
+                    <td>${c.fecha}</td>
+                    <td>${c.hora}</td>
+                    <td><strong>${c.nombreMascota}</strong></td>
+                    <td>${c.nombreServicio}</td>
+                    <td>${vetCell}</td>
+                    <td>${prioridadBadge}</td>
+                    <td>${c.contactoEmergencia || '-'}</td>
+                    <td><span class="badge-status ${estadoBadge}">${c.estado}</span></td>
+                    <td>${c.motivo || '-'}</td>
+                    <td>${acciones}</td>
+                </tr>`;
+            });
+        }
+        document.getElementById('tablaCitas').innerHTML = html;
+    }
+
+    function abrirModalProgramarCita() {
+        document.getElementById('formProgramarCita').reset();
+        const hoy = new Date().toISOString().split('T')[0];
+        document.getElementById('cita_fecha').setAttribute('min', hoy);
+        modalProgramarCitaInst.show();
+    }
+
+    function programarCitaParaMascota(idMascota) {
+        abrirModalProgramarCita();
+        document.getElementById('cita_mascota').value = idMascota;
+    }
+
+    document.getElementById('formProgramarCita').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const idVetVal = document.getElementById('cita_veterinario').value;
+        const esEmergencia = document.getElementById('cita_es_emergencia').checked;
+        const payload = {
+            idMascota: parseInt(document.getElementById('cita_mascota').value),
+            idServicio: parseInt(document.getElementById('cita_servicio').value),
+            idVeterinario: idVetVal ? parseInt(idVetVal) : null,
+            fecha: document.getElementById('cita_fecha').value,
+            hora: document.getElementById('cita_hora').value,
+            motivo: document.getElementById('cita_motivo').value.trim(),
+            esEmergencia: esEmergencia
+        };
+
+        try {
+            const endpoint = esEmergencia ? '/citas/emergencia' : '/citas';
+            await api.post(endpoint, payload);
+            alert('Cita programada con exito.');
+            modalProgramarCitaInst.hide();
+            cargarCitas();
+        } catch(err) {
+            // Manejado en api.js
+        }
+    });
+
+    function abrirReprogramar(idCita) {
+        const c = citasGlobal.find(item => item.idCita === idCita);
+        if (!c) return;
+
+        document.getElementById('reprog_id').value = c.idCita;
+        document.getElementById('reprog_mascota_id').value = c.idMascota;
+        document.getElementById('reprog_servicio_id').value = c.idServicio;
+        document.getElementById('reprog_fecha').value = c.fecha;
+        document.getElementById('reprog_hora').value = c.hora;
+        document.getElementById('reprog_veterinario').value = c.idVeterinario || '';
+        document.getElementById('reprog_motivo').value = c.motivo || '';
+
+        modalReprogramarInst.show();
+    }
+
+    document.getElementById('formReprogramarCita').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const idCita = document.getElementById('reprog_id').value;
+        const idVetVal = document.getElementById('reprog_veterinario').value;
+
+        const payload = {
+            idMascota: parseInt(document.getElementById('reprog_mascota_id').value),
+            idServicio: parseInt(document.getElementById('reprog_servicio_id').value),
+            idVeterinario: idVetVal ? parseInt(idVetVal) : null,
+            fecha: document.getElementById('reprog_fecha').value,
+            hora: document.getElementById('reprog_hora').value,
+            motivo: document.getElementById('reprog_motivo').value.trim()
+        };
+
+        try {
+            await api.put('/citas/' + idCita, payload);
+            alert('Cita reprogramada correctamente.');
+            modalReprogramarInst.hide();
+            cargarCitas();
+        } catch(err) {
+            // Manejado en api.js
+        }
+    });
+
+    // ================= ASIGNACION RAPIDA DE VETERINARIO =================
+    async function asignarVeterinarioDirecto(idCita, idVetVal) {
+        try {
+            const payload = { idVeterinario: idVetVal ? parseInt(idVetVal) : null };
+            const res = await api.patch('/citas/' + idCita + '/veterinario', payload);
+            const nombreVet = res.nombreVeterinario ? ('Dr(a). ' + res.nombreVeterinario) : 'Sin asignar';
+            alert(`Cita #${idCita}: se asignó el veterinario "${nombreVet}" correctamente.`);
+            cargarCitas();
+        } catch (err) {
+            // En caso de conflicto de horario o error, recargar para restablecer la opción
+            cargarCitas();
+        }
+    }
+
+    async function cancelarCita(idCita) {
+        if (confirm('Esta seguro de cancelar esta cita?')) {
+            try {
+                await api.patch('/citas/' + idCita + '/cancelar');
+                alert('Cita cancelada.');
+                cargarCitas();
+            } catch(e) {
+                console.error(e);
+            }
+        }
+    }
+
+    async function verColaCitas() {
+        try {
+            const cola = await api.get('/citas/pendientes');
+            const cont = document.getElementById('seccionCola');
+            cont.classList.remove('d-none');
+
+            let html = '';
+            if (!cola || cola.length === 0) {
+                html = '<tr><td colspan="8" class="text-center text-muted">No hay citas en espera en la cola</td></tr>';
+            } else {
+                cola.forEach((c, idx) => {
+                    const esEmerg = c.esEmergencia;
+                    html += `<tr class="${esEmerg ? 'table-danger' : ''}">
+                        <td><strong># ${idx + 1}</strong></td>
+                        <td>${esEmerg ? '<span class="badge-status badge-prioridad-alta">EMERGENCIA</span>' : '<span class="badge-status badge-prioridad-baja">REGULAR</span>'}</td>
+                        <td>${c.fecha}</td>
+                        <td>${c.hora}</td>
+                        <td>${c.nombreMascota}</td>
+                        <td>${c.nombreServicio}</td>
+                        <td>${c.contactoEmergencia || '-'}</td>
+                        <td><span class="badge-status badge-status-programada">${c.estado}</span></td>
+                    </tr>`;
+                });
+            }
+            document.getElementById('tablaColaCitas').innerHTML = html;
+        } catch(e) {
+            console.error(e);
+        }
+    }
+
+    // ================= ATENCION AL CLIENTE =================
+    async function cargarConsultas() {
+        try {
+            const estado = document.getElementById('filtroEstadoConsulta').value;
+            let url = '/consultas';
+            if (estado) url += '?estado=' + estado;
+
+            const data = await api.get(url);
+            consultasGlobal = data || [];
+            let html = '';
+
+            if (consultasGlobal.length === 0) {
+                html = '<tr><td colspan="8" class="text-center text-muted">No hay consultas registradas</td></tr>';
+            } else {
+                consultasGlobal.forEach(c => {
+                    const badge = c.estado === 'PENDIENTE' ? 'badge-status-programada' : 'badge-status-atendida';
+                    let accion = '-';
+                    if (c.estado === 'PENDIENTE') {
+                        accion = `<button class="btn btn-primary-custom btn-sm" onclick="abrirResponderConsulta(${c.idConsulta})">Responder</button>`;
+                    } else {
+                        accion = `<button class="btn btn-outline-custom btn-sm" onclick="abrirResponderConsulta(${c.idConsulta})">Ver/Editar</button>`;
+                    }
+
+                    const fecha = c.fechaCreacion ? c.fechaCreacion.replace('T', ' ').substring(0, 16) : '-';
+
+                    html += `<tr>
+                        <td>${c.idConsulta}</td>
+                        <td>${escapeHtml(fecha)}</td>
+                        <td><strong>${escapeHtml(c.nombreCliente)}</strong><br><small class="text-muted">${escapeHtml(c.emailCliente)}</small></td>
+                        <td>${escapeHtml(c.asunto)}</td>
+                        <td>${escapeHtml(c.mensaje)}</td>
+                        <td><span class="badge-status ${badge}">${escapeHtml(c.estado)}</span></td>
+                        <td>${c.respuesta ? escapeHtml(c.respuesta) + '<br><small class="text-muted">Por: ' + escapeHtml(c.nombreRecepcionista || 'Recepcionista') + '</small>' : '<em class="text-muted">Sin respuesta aun</em>'}</td>
+                        <td>${accion}</td>
+                    </tr>`;
+                });
+            }
+            document.getElementById('tablaConsultas').innerHTML = html;
+        } catch(e) {
+            console.error(e);
+        }
+    }
+
+    function abrirResponderConsulta(id) {
+        const item = consultasGlobal.find(c => c.idConsulta === id);
+        if (!item) return;
+
+        document.getElementById('resp_id_consulta').value = item.idConsulta;
+        document.getElementById('resp_cliente_info').innerText = item.nombreCliente + ' (' + item.emailCliente + ')';
+        document.getElementById('resp_asunto').innerText = item.asunto;
+        document.getElementById('resp_mensaje').innerText = item.mensaje;
+        document.getElementById('resp_texto').value = item.respuesta || '';
+
+        modalResponderInst.show();
+    }
+
+    async function enviarRespuestaConsulta() {
+        const id = document.getElementById('resp_id_consulta').value;
+        const respuesta = document.getElementById('resp_texto').value.trim();
+
+        if (!respuesta) {
+            alert('Por favor ingrese una respuesta');
+            return;
+        }
+
+        try {
+            await api.put('/consultas/' + id + '/responder', { respuesta });
+            alert('Respuesta registrada y enviada al cliente.');
+            modalResponderInst.hide();
+            cargarConsultas();
+        } catch(e) {
+            console.error(e);
+        }
+    }
+</script>
+</body>
+</html>

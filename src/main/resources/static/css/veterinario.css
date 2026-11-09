@@ -1,0 +1,297 @@
+:root {
+    --color-primario: #754d3f;
+    --color-primario-hover: #5d3a2f;
+    --color-primario-light: #f5ebe1;
+    --color-fondo: #fcf8f5;
+    --color-fondo-card: #ffffff;
+    --color-texto: #33251e;
+    --color-texto-muted: #7d6b62;
+    --color-borde: #ebd8c8;
+    --color-acento: #ebcca6;
+
+    /* Acentos especificos area medica veterinaria */
+    --color-medico: #2a9d8f;
+    --color-medico-hover: #21867a;
+    --color-medico-light: #e6f6f4;
+    --color-emergencia: #dc3545;
+}
+
+body {
+    background-color: var(--color-fondo);
+    color: var(--color-texto);
+    font-family: 'Quicksand', system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+}
+
+.font-brand {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 800;
+    font-style: italic;
+    color: var(--color-primario);
+}
+
+/* Navbar */
+.navbar-panel {
+    background-color: #ffffff;
+    border-bottom: 1px solid var(--color-borde);
+    box-shadow: 0 2px 10px rgba(117, 77, 63, 0.06);
+    padding: 0.85rem 1.5rem;
+}
+
+.brand-badge {
+    background-color: var(--color-medico-light);
+    color: var(--color-medico);
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.5px;
+}
+
+/* Nav Pills */
+.nav-pills-custom .nav-link {
+    color: var(--color-texto-muted);
+    font-weight: 700;
+    font-size: 0.95rem;
+    border-radius: 50px;
+    padding: 8px 20px;
+    margin-right: 8px;
+    margin-bottom: 8px;
+    border: 1px solid transparent;
+    transition: all 0.25s ease;
+    background: transparent;
+}
+
+.nav-pills-custom .nav-link:hover {
+    color: var(--color-primario);
+    background-color: var(--color-primario-light);
+}
+
+.nav-pills-custom .nav-link.active {
+    background-color: var(--color-primario) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(117, 77, 63, 0.25);
+}
+
+/* Contenedores y Cards */
+.panel-card {
+    background-color: var(--color-fondo-card);
+    border-radius: 18px;
+    border: 1px solid var(--color-borde);
+    box-shadow: 0 4px 20px rgba(117, 77, 63, 0.05);
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+}
+
+.panel-card-header {
+    background-color: #ffffff;
+    border-bottom: 1px solid var(--color-borde);
+    padding: 1.1rem 1.4rem;
+}
+
+.panel-card-header h5,
+.panel-card-header h6 {
+    color: var(--color-primario);
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+}
+
+/* Estilo para Triaje y Emergencia */
+.panel-card-emergency {
+    border: 1.5px solid var(--color-emergencia);
+    box-shadow: 0 4px 16px rgba(220, 53, 69, 0.12);
+}
+
+.panel-card-emergency .panel-card-header {
+    background-color: #fff5f5;
+    border-bottom-color: #fed7d7;
+}
+
+/* Botones */
+.btn-primary-custom {
+    background-color: var(--color-primario);
+    border-color: var(--color-primario);
+    color: #ffffff;
+    border-radius: 50px;
+    padding: 7px 18px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+.btn-primary-custom:hover {
+    background-color: var(--color-primario-hover);
+    border-color: var(--color-primario-hover);
+    color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(117, 77, 63, 0.25);
+}
+
+.btn-medico-custom {
+    background-color: var(--color-medico);
+    border-color: var(--color-medico);
+    color: #ffffff;
+    border-radius: 50px;
+    padding: 7px 18px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+.btn-medico-custom:hover {
+    background-color: var(--color-medico-hover);
+    border-color: var(--color-medico-hover);
+    color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(42, 157, 143, 0.3);
+}
+
+.btn-outline-custom {
+    color: var(--color-primario);
+    border-color: var(--color-primario);
+    background-color: transparent;
+    border-radius: 50px;
+    padding: 6px 16px;
+    font-weight: 700;
+    font-size: 0.88rem;
+    transition: all 0.2s ease;
+}
+
+.btn-outline-custom:hover {
+    background-color: var(--color-primario-light);
+    color: var(--color-primario);
+    border-color: var(--color-primario);
+}
+
+.btn-emergency-custom {
+    background: linear-gradient(135deg, #e63946, #dc3545);
+    border: none;
+    color: #ffffff;
+    border-radius: 50px;
+    padding: 7px 18px;
+    font-weight: 700;
+    font-size: 0.88rem;
+    box-shadow: 0 3px 10px rgba(220, 53, 69, 0.3);
+    transition: all 0.2s ease;
+}
+
+.btn-emergency-custom:hover {
+    background: linear-gradient(135deg, #d62828, #b02a37);
+    color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0 5px 14px rgba(220, 53, 69, 0.4);
+}
+
+/* Badges de Estado */
+.badge-status {
+    padding: 6px 12px;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 0.78rem;
+    letter-spacing: 0.3px;
+    display: inline-block;
+}
+
+.badge-status-programada {
+    background-color: #fef3c7;
+    color: #92400e;
+    border: 1px solid #fde68a;
+}
+
+.badge-status-atendida {
+    background-color: #d1fae5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+}
+
+.badge-status-cancelada {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+}
+
+.badge-prioridad-alta {
+    background-color: #fde8e8;
+    color: #9b1c1c;
+    border: 1px solid #f8b4b4;
+}
+
+.badge-prioridad-media {
+    background-color: #fef08a;
+    color: #854d0e;
+    border: 1px solid #fde047;
+}
+
+.badge-prioridad-baja {
+    background-color: #e0f2fe;
+    color: #0369a1;
+    border: 1px solid #bae6fd;
+}
+
+/* Tablas */
+.table-custom {
+    margin-bottom: 0;
+    color: var(--color-texto);
+}
+
+.table-custom thead th {
+    background-color: var(--color-primario-light);
+    color: var(--color-primario);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid var(--color-borde);
+    padding: 12px 14px;
+}
+
+.table-custom tbody td {
+    padding: 12px 14px;
+    vertical-align: middle;
+    border-color: #f0e6dc;
+    font-size: 0.92rem;
+}
+
+.table-custom tbody tr:hover {
+    background-color: #faf5f0;
+}
+
+/* Formularios */
+.form-control,
+.form-select {
+    border-radius: 12px;
+    border: 1.5px solid var(--color-borde);
+    padding: 8px 14px;
+    font-size: 0.92rem;
+    color: var(--color-texto);
+    transition: all 0.2s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--color-primario);
+    box-shadow: 0 0 0 3px rgba(117, 77, 63, 0.15);
+}
+
+/* Modales */
+.modal-content-custom {
+    background-color: #ffffff;
+    pointer-events: auto;
+    border-radius: 20px;
+    border: 1px solid var(--color-borde);
+    box-shadow: 0 10px 40px rgba(117, 77, 63, 0.2);
+    overflow: hidden;
+}
+
+.modal-header-custom {
+    background-color: var(--color-primario-light);
+    border-bottom: 1px solid var(--color-borde);
+    padding: 1rem 1.4rem;
+}
+
+.modal-header-custom .modal-title {
+    color: var(--color-primario);
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+}

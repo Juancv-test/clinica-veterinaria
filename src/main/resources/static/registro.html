@@ -2,45 +2,96 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Veterinaria - Registro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Veterinaria Huesitos - Registro</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@1,800;1,900&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body class="bg-light">
-<div class="container mt-5 mb-5">
-    <div class="card">
-        <div class="card-header"><h4>Registro de Cliente y Mascota</h4></div>
-        <div class="card-body">
-            <form id="registroForm">
-                <h5>Datos Personales</h5>
-                <div class="row mb-3">
-                    <div class="col"><input type="text" id="nombres" class="form-control" placeholder="Nombres" required></div>
-                    <div class="col"><input type="text" id="apellidos" class="form-control" placeholder="Apellidos" required></div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col"><input type="text" id="dni" class="form-control" placeholder="DNI (8 dígitos)" required></div>
-                    <div class="col"><input type="email" id="email" class="form-control" placeholder="Email" required></div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col"><input type="password" id="password" class="form-control" placeholder="Contraseña" required></div>
-                </div>
 
-                <hr>
-                <h5>Datos de la Mascota</h5>
-                <div class="row mb-3">
-                    <div class="col"><input type="text" id="m_nombre" class="form-control" placeholder="Nombre de la mascota" required></div>
-                    <div class="col"><input type="text" id="m_especie" class="form-control" placeholder="Especie (Perro, Gato...)" required></div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col">
-                        <select id="m_sexo" class="form-control" required>
-                            <option value="">Seleccione sexo...</option>
-                            <option value="M">Macho</option>
-                            <option value="H">Hembra</option>
-                        </select>
+    <link rel="stylesheet" href="css/registro.css">
+</head>
+<body>
+
+<div class="auth-card-container">
+    <div class="row g-0">
+        <!-- Columna Izquierda: Banner Beige -->
+        <div class="col-lg-5 auth-left-banner text-center text-lg-start">
+            <div class="mb-3">
+                <a href="index.html" class="text-decoration-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="48" height="48" class="mb-2">
+                        <circle cx="50" cy="50" r="48" fill="#754d3f"/>
+                        <path d="M34 26 C31 22 25 24 23 30 C20 38 23 52 30 58 C32 60 34 68 34 76 C34 78 36 80 39 80 C42 80 43 78 44 74 C46 68 49 65 52 64 C56 63 61 66 65 74 C66 76 68 78 71 78 C74 78 75 76 75 72 C75 62 70 54 66 48 C63 43 62 38 64 33 C65 29 62 25 58 26 C54 27 50 32 46 32 C41 32 37 29 34 26 Z" fill="#ffffff"/>
+                        <circle cx="43" cy="40" r="2.5" fill="#754d3f"/>
+                        <ellipse cx="32" cy="48" rx="3" ry="2" fill="#754d3f"/>
+                    </svg>
+                </a>
+            </div>
+            <h1 class="font-brand-title display-5 mb-3">Unete a<br>Huesitos</h1>
+            <p class="fs-6 mb-0" style="color: #4a3429; line-height: 1.5;">
+                Registra tus datos y los de tu mascota en un solo paso.
+            </p>
+        </div>
+
+        <!-- Columna Derecha: Formulario Blanco -->
+        <div class="col-lg-7 auth-right-form">
+            <h2 class="font-brand-title fs-2 mb-4">Registro</h2>
+
+            <form id="registroForm">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <input type="text" id="nombres" class="form-control form-control-custom" placeholder="Nombre" required>
+                    </div>
+                    <div class="col-sm-6">
+                        <input type="text" id="apellidos" class="form-control form-control-custom" placeholder="Apellido" required>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-success">Registrar</button>
-                <a href="index.html" class="btn btn-link">Volver al login</a>
+
+                <div class="row">
+                    <div class="col-sm-6">
+                        <input type="text" id="dni" class="form-control form-control-custom" placeholder="DNI (8 dígitos)" maxlength="8" pattern="\d{8}" inputmode="numeric" oninput="this.value = this.value.replace(/\D/g, '').slice(0, 8)" required>
+                    </div>
+                    <div class="col-sm-6">
+                        <input type="email" id="email" class="form-control form-control-custom" placeholder="Correo" required>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-6">
+                        <input type="tel" id="telefono" class="form-control form-control-custom" placeholder="Celular (9 dígitos, ej: 919430986)" maxlength="9" pattern="\d{9}" inputmode="numeric" oninput="this.value = this.value.replace(/\D/g, '').slice(0, 9)" required>
+                    </div>
+                    <div class="col-sm-6">
+                        <input type="password" id="password" class="form-control form-control-custom" placeholder="Contraseña" required>
+                    </div>
+                </div>
+
+                <div class="mt-2 mb-2 p-3 rounded-3" style="background-color: #fbf5ee; border: 1px dashed #ebd2b9;">
+                    <div class="small fw-bold mb-2" style="color: var(--color-primario);">Datos de tu primera mascota:</div>
+                    <div class="row g-2">
+                        <div class="col-sm-6">
+                            <input type="text" id="m_nombre" class="form-control form-control-custom mb-0" placeholder="Nombre de la mascota" required>
+                        </div>
+                        <div class="col-sm-6">
+                            <input type="text" id="m_especie" class="form-control form-control-custom mb-0" placeholder="Especie (Canino, Felino)" required>
+                        </div>
+                        <div class="col-12 mt-2">
+                            <select id="m_sexo" class="form-control form-control-custom mb-0" required>
+                                <option value="">Sexo de la mascota...</option>
+                                <option value="M">Macho</option>
+                                <option value="H">Hembra</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn-pill-brown w-100 py-2">crear cuenta</button>
+                </div>
+
+                <div class="text-center small mt-3">
+                    <span class="text-muted">Ya tienes cuenta?</span>
+                    <a href="index.html" class="fw-bold ms-1" style="color: var(--color-primario);">Iniciar sesion</a>
+                </div>
             </form>
         </div>
     </div>
@@ -50,29 +101,41 @@
 <script>
     document.getElementById('registroForm').addEventListener('submit', async (e) => {
         e.preventDefault();
-        
-        // Armar el DTO complejo que pide Spring Boot (RegistroClienteDto)
+
+        const dniVal = document.getElementById('dni').value.trim();
+        if (dniVal.length !== 8) {
+            alert('El DNI debe tener exactamente 8 dígitos.');
+            return;
+        }
+
+        const telVal = document.getElementById('telefono').value.trim();
+        if (telVal.length !== 9) {
+            alert('El número de celular debe tener exactamente 9 dígitos (ejemplo: 919430986).');
+            return;
+        }
+
         const payload = {
             cliente: {
-                nombres: document.getElementById('nombres').value,
-                apellidos: document.getElementById('apellidos').value,
-                dni: document.getElementById('dni').value,
-                email: document.getElementById('email').value,
+                nombres: document.getElementById('nombres').value.trim(),
+                apellidos: document.getElementById('apellidos').value.trim(),
+                dni: dniVal,
+                email: document.getElementById('email').value.trim(),
+                telefono: telVal,
                 password: document.getElementById('password').value
             },
             mascota: {
-                nombre: document.getElementById('m_nombre').value,
-                especie: document.getElementById('m_especie').value,
+                nombre: document.getElementById('m_nombre').value.trim(),
+                especie: document.getElementById('m_especie').value.trim(),
                 sexo: document.getElementById('m_sexo').value
             }
         };
 
         try {
-            await api.post('/auth/registro', payload);
-            alert('¡Registro exitoso! Ahora puedes iniciar sesión.');
+            const resp = await api.post('/auth/registro', payload);
+            alert('Cuenta registrada con exito. Ahora puedes iniciar sesion con tu correo y contrasena.');
             window.location.href = 'index.html';
         } catch (error) {
-            // El alert ya sale por api.js
+            // Manejado en api.js
         }
     });
 </script>

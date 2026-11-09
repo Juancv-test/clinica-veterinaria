@@ -6,7 +6,7 @@ import java.time.LocalTime;
 
 /**
  * DTO para crear o actualizar una cita.
- * La validación @FutureOrPresent garantiza que no se programen
+ * La validacion @FutureOrPresent garantiza que no se programen
  * citas en fechas pasadas.
  */
 public record CitaDto(
@@ -17,7 +17,7 @@ public record CitaDto(
         @NotNull(message = "El ID del servicio es obligatorio")
         Integer idServicio,
 
-        // Veterinario opcional: puede asignarse después
+        // Veterinario opcional: puede asignarse despues
         Long idVeterinario,
 
         @NotNull(message = "La fecha de la cita es obligatoria")
@@ -28,5 +28,12 @@ public record CitaDto(
         LocalTime hora,
 
         @Size(max = 200, message = "El motivo no puede superar los 200 caracteres")
-        String motivo
-) {}
+        String motivo,
+
+        Boolean esEmergencia
+) {
+    public CitaDto(Long idMascota, Integer idServicio, Long idVeterinario,
+                   LocalDate fecha, LocalTime hora, String motivo) {
+        this(idMascota, idServicio, idVeterinario, fecha, hora, motivo, false);
+    }
+}

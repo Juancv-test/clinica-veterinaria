@@ -8,9 +8,6 @@ import java.util.Optional;
 
 /**
  * Contrato de acceso a datos para la tabla citas.
- * Las consultas con filtros opcionales se implementan de forma segura
- * construyendo la cláusula WHERE dinámicamente (los valores van como
- * parámetros, nunca concatenados en el SQL).
  */
 public interface CitaDao {
 
@@ -23,9 +20,14 @@ public interface CitaDao {
      */
     List<Cita> findAll(LocalDate fecha, String estado);
 
-    /** Devuelve todas las citas en estado PROGRAMADA ordenadas por fecha y hora ASC.
-     *  Se usa para reconstruir la cola (Queue) al iniciar la aplicación. */
+    /** Devuelve todas las citas en estado PROGRAMADA ordenadas por fecha y hora ASC. */
     List<Cita> findProgramadasOrdenadas();
+
+    /** Devuelve citas asignadas a un veterinario especifico */
+    List<Cita> findByVeterinario(Long idVeterinario);
+
+    /** Devuelve citas de las mascotas pertenecientes a un cliente especifico */
+    List<Cita> findByCliente(Long idCliente);
 
     /** Inserta una nueva cita y devuelve el ID generado */
     Long save(Cita cita);
@@ -36,9 +38,23 @@ public interface CitaDao {
     /** Cambia el estado de la cita a CANCELADA */
     void cancel(Long id);
 
+    /** Cambia el estado de la cita a ATENDIDA */
+    void marcarAtendida(Long id);
+
     /**
      * Verifica si ya existe una cita PROGRAMADA para la misma mascota,
      * misma fecha y misma hora (evita duplicados al programar).
      */
     boolean existsConflicto(Long idMascota, LocalDate fecha, LocalTime hora);
+
+    /**
+     * Verifica si el horario (fecha y hora) ya está ocupado por otra cita PROGRAMADA.
+     * Considera si un veterinario específico ya está ocupado o si se superó la capacidad de la clínica.
+     */
+    boolean existsConflictoHorario(LocalDate fecha, LocalTime hora, Long excludeIdCita, Long idVeterinario);
+
+    /**
+     * Asigna o desasigna rápidamente un veterinario a una cita existente.
+     */
+    void updateVeterinario(Long idCita, Long idVeterinario);
 }

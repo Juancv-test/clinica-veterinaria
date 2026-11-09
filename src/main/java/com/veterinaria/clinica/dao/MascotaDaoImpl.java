@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.Types;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -24,11 +25,19 @@ public class MascotaDaoImpl implements MascotaDao {
         this.jdbc = jdbc;
     }
 
-    // RowMapper: convierte cada fila en un objeto Mascota
     private final RowMapper<Mascota> mascotaMapper = (rs, rowNum) -> {
-        // fecha_nacimiento y peso_kg pueden ser null en la BD
         Date sqlFecha = rs.getDate("fecha_nacimiento");
         BigDecimal peso = rs.getBigDecimal("peso_kg");
+
+        long idClienteVal = rs.getLong("id_cliente");
+        Long idCliente = rs.wasNull() ? null : idClienteVal;
+
+        boolean esTemporal = false;
+        try {
+            esTemporal = rs.getBoolean("es_temporal");
+        } catch (Exception ignored) {
+        }
+
         return new Mascota(
                 rs.getLong("id_mascota"),
                 rs.getString("nombre"),
@@ -37,19 +46,21 @@ public class MascotaDaoImpl implements MascotaDao {
                 rs.getString("sexo"),
                 sqlFecha != null ? sqlFecha.toLocalDate() : null,
                 peso,
-                rs.getLong("id_cliente"),
-                rs.getString("nombre_cliente"),   // del JOIN con usuarios
-                rs.getBoolean("activo")
+                idCliente,
+                rs.getString("nombre_cliente"),
+                rs.getBoolean("activo"),
+                esTemporal
         );
     };
 
-    // SQL base con JOIN para obtener el nombre del cliente
+    // LEFT JOIN para permitir mascotas de emergencia express sin dueno asignado aun
     private static final String SELECT_BASE = """
             SELECT m.id_mascota, m.nombre, m.especie, m.raza, m.sexo,
                    m.fecha_nacimiento, m.peso_kg, m.id_cliente,
-                   u.nombres AS nombre_cliente, m.activo
+                   COALESCE(u.nombres || ' ' || u.apellidos, '') AS nombre_cliente,
+                   m.activo, COALESCE(m.es_temporal, false) AS es_temporal
             FROM mascotas m
-            JOIN usuarios u ON m.id_cliente = u.id_usuario
+            LEFT JOIN usuarios u ON m.id_cliente = u.id_usuario
             """;
 
     @Override
@@ -72,10 +83,16 @@ public class MascotaDaoImpl implements MascotaDao {
     }
 
     @Override
+    public List<Mascota> findTemporalesPendientes() {
+        String sql = SELECT_BASE + "WHERE m.activo = true AND m.es_temporal = true ORDER BY m.id_mascota DESC";
+        return new ArrayList<>(jdbc.query(sql, mascotaMapper));
+    }
+
+    @Override
     public Long save(Mascota mascota) {
         String sql = """
-                INSERT INTO mascotas (nombre, especie, raza, sexo, fecha_nacimiento, peso_kg, id_cliente)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO mascotas (nombre, especie, raza, sexo, fecha_nacimiento, peso_kg, id_cliente, es_temporal)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """;
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbc.update(connection -> {
@@ -84,7 +101,6 @@ public class MascotaDaoImpl implements MascotaDao {
             ps.setString(2, mascota.especie());
             ps.setString(3, mascota.raza());
             ps.setString(4, mascota.sexo());
-            // Manejo de posibles null para fecha_nacimiento y peso_kg
             if (mascota.fechaNacimiento() != null) {
                 ps.setDate(5, Date.valueOf(mascota.fechaNacimiento()));
             } else {
@@ -95,10 +111,14 @@ public class MascotaDaoImpl implements MascotaDao {
             } else {
                 ps.setNull(6, Types.NUMERIC);
             }
-            ps.setLong(7, mascota.idCliente());
+            if (mascota.idCliente() != null) {
+                ps.setLong(7, mascota.idCliente());
+            } else {
+                ps.setNull(7, Types.BIGINT);
+            }
+            ps.setBoolean(8, mascota.esTemporal() != null && mascota.esTemporal());
             return ps;
         }, keyHolder);
-        // Leer la clave por nombre: más robusto con PostgreSQL que getKey()
         Number key = (Number) keyHolder.getKeys().get("id_mascota");
         return key.longValue();
     }
@@ -116,6 +136,23 @@ public class MascotaDaoImpl implements MascotaDao {
                 mascota.fechaNacimiento() != null ? Date.valueOf(mascota.fechaNacimiento()) : null,
                 mascota.pesoKg(),
                 id);
+    }
+
+    @Override
+    public void regularizar(Long idMascota, Long idCliente, String nombre, String raza, String sexo, LocalDate fechaNacimiento) {
+        String sql = """
+                UPDATE mascotas
+                SET id_cliente = ?, nombre = ?, raza = ?, sexo = ?,
+                    fecha_nacimiento = ?, es_temporal = false
+                WHERE id_mascota = ?
+                """;
+        jdbc.update(sql,
+                idCliente,
+                nombre,
+                raza,
+                sexo,
+                fechaNacimiento != null ? Date.valueOf(fechaNacimiento) : null,
+                idMascota);
     }
 
     @Override

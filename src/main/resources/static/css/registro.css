@@ -1,0 +1,79 @@
+:root {
+    --color-primario: #754d3f;
+    --color-primario-hover: #5d3a2f;
+    --color-fondo-hero: #ebcca6;
+    --color-fondo-blanco: #ffffff;
+    --color-texto: #33251e;
+}
+
+body {
+    background-color: #f7ede2;
+    color: var(--color-texto);
+    font-family: 'Quicksand', system-ui, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+}
+
+.font-brand-title {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900;
+    font-style: italic;
+    color: var(--color-primario);
+}
+
+.auth-card-container {
+    background-color: #ffffff;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(117, 77, 63, 0.15);
+    max-width: 920px;
+    width: 100%;
+}
+
+.auth-left-banner {
+    background-color: var(--color-fondo-hero);
+    padding: 3.5rem 2.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.auth-right-form {
+    background-color: #ffffff;
+    padding: 3.5rem 3rem;
+}
+
+.btn-pill-brown {
+    background-color: var(--color-primario);
+    color: #ffffff !important;
+    border-radius: 50px;
+    padding: 10px 30px;
+    font-weight: 700;
+    font-style: italic;
+    border: none;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-pill-brown:hover {
+    background-color: var(--color-primario-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(117, 77, 63, 0.25);
+}
+
+.form-control-custom {
+    border: 1px solid #ebd2b9;
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-bottom: 12px;
+    font-family: 'Quicksand', sans-serif;
+}
+
+.form-control-custom:focus {
+    border-color: var(--color-primario);
+    box-shadow: 0 0 0 0.2rem rgba(117, 77, 63, 0.15);
+}
